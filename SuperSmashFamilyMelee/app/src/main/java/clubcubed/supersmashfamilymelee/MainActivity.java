@@ -37,8 +37,8 @@ public class MainActivity extends Activity {
         // gets dimensions
         DisplayMetrics dm = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(dm);
-        Global.SCREEN_WIDTH = dm.widthPixels;
         Global.SCREEN_HEIGHT = dm.heightPixels;
+        Global.SCREEN_WIDTH = dm.widthPixels;
 
         // switches dimensions if incorrect LMAO
         if (Global.SCREEN_WIDTH < Global.SCREEN_HEIGHT) {
@@ -46,6 +46,10 @@ public class MainActivity extends Activity {
             Global.SCREEN_WIDTH = Global.SCREEN_HEIGHT;
             Global.SCREEN_HEIGHT = temp;
         }
+
+        Global.GAME_HEIGHT = 500f;
+        Global.GAME_RATIO = Global.GAME_HEIGHT/Global.SCREEN_HEIGHT;
+        Global.GAME_WIDTH = Global.GAME_HEIGHT * Global.GAME_RATIO;
 
         // asks for file access permissions
         if (Build.VERSION.SDK_INT >= 23) {

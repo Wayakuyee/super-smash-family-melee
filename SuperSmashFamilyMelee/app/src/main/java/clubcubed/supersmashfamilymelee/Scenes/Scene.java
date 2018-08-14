@@ -1,4 +1,4 @@
-package clubcubed.supersmashfamilymelee;
+package clubcubed.supersmashfamilymelee.Scenes;
 
 import android.graphics.Canvas;
 import android.view.MotionEvent;
