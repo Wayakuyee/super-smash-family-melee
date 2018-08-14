@@ -6,27 +6,39 @@ import android.view.MotionEvent;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import clubcubed.supersmashfamilymelee.Scenes.AdventureScene;
+import clubcubed.supersmashfamilymelee.Scenes.CharacterSelectScene;
+import clubcubed.supersmashfamilymelee.Scenes.GameMenuScene;
+import clubcubed.supersmashfamilymelee.Scenes.MainMenuScene;
+import clubcubed.supersmashfamilymelee.Scenes.OptionScene;
 import clubcubed.supersmashfamilymelee.Scenes.Scene;
 import clubcubed.supersmashfamilymelee.Scenes.StageScene;
+import clubcubed.supersmashfamilymelee.Scenes.StageSelectScene;
 
 public class SceneManager implements Scene {
-    private int previousScene;
     private int currentScene;
-    private HashMap<String, Integer> dictionary = new HashMap<>();
+    private HashMap<String, Integer> sceneIndex = new HashMap<>();
     private ArrayList<Scene> scenes = new ArrayList<>();
 
     public SceneManager() {
-        previousScene = 0;
+
         currentScene = 0;
-        // scenes.add();
-        scenes.add(0, new StageScene("d", "a", "b"));
-        // hardcoded rn
-        /*
-        dictionary.put("MainMenu", 0);
-        dictionary.put("GameMenu", 1);
-        dictionary.put("Options", 2);
-        */
-        // dictionary.put("", );
+
+        scenes.add(0, new MainMenuScene());
+        scenes.add(1, new GameMenuScene());
+        scenes.add(2, new OptionScene());
+        scenes.add(3, new CharacterSelectScene());
+        scenes.add(4, new StageSelectScene());
+        scenes.add(5, new StageScene());
+        scenes.add(6, new AdventureScene());
+
+        sceneIndex.put("MainMenuScene", 0);
+        sceneIndex.put("GameMenuScene", 1);
+        sceneIndex.put("OptionScene", 2);
+        sceneIndex.put("CharacterSelectScene", 3);
+        sceneIndex.put("StageSelectScene", 4);
+        sceneIndex.put("StageScene", 5);
+        sceneIndex.put("AdventureScene", 6);
     }
 
     @Override

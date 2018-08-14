@@ -15,11 +15,16 @@ public class StageScene implements Scene {
     private Character characterTwo;
     private Stage stage;
 
-    public StageScene(String stage, String characterOne, String characterTwo) {
-        // character and stage select stuff
-        // this.one = Global.;
+    public StageScene() {
+        /*
+        this.stage = new LastJourneyEnd();
 
-        // hardcoded for testing
+        this.characterOne = new FaxMcClad();
+        this.characterTwo = new FaxMcClad();
+
+        this.controller = new Controller();
+        */
+
         this.stage = new LastJourneyEnd();
 
         this.characterOne = new FaxMcClad();

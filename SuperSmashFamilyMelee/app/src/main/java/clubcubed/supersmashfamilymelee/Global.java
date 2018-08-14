@@ -9,6 +9,11 @@ public class Global {
     public static float GAME_RATIO;
     public static float GAME_HEIGHT;
     public static float GAME_WIDTH;
+    public static String SCENE_NAME;
+    public static String CHARACTER_ONE_NAME;
+    public static String CHARACTER_TWO_NAME;
+    public static String STAGE_NAME;
     public static MediaPlayer SONG_PLAYER;
     public static int BACKGROUND_COLOUR = Color.YELLOW;
+
 }
