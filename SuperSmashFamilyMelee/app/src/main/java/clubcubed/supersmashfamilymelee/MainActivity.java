@@ -49,7 +49,7 @@ public class MainActivity extends Activity {
 
         Global.GAME_HEIGHT = 500f;
         Global.GAME_RATIO = Global.GAME_HEIGHT/Global.SCREEN_HEIGHT;
-        Global.GAME_WIDTH = Global.GAME_HEIGHT * Global.GAME_RATIO;
+        Global.GAME_WIDTH = Global.SCREEN_WIDTH * Global.GAME_RATIO;
 
         // asks for file access permissions
         // probably NOT NEEDED for melee
