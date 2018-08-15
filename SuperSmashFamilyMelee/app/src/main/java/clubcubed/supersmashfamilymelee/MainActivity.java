@@ -52,6 +52,7 @@ public class MainActivity extends Activity {
         Global.GAME_WIDTH = Global.GAME_HEIGHT * Global.GAME_RATIO;
 
         // asks for file access permissions
+        // probably NOT NEEDED for melee
         if (Build.VERSION.SDK_INT >= 23) {
             if (this.checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);

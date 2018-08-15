@@ -3,11 +3,14 @@ package clubcubed.supersmashfamilymelee.Characters;
 import android.graphics.Canvas;
 
 public class FaxMcClad implements Character {
+    private String state;
     private float percent;
-    private float life;
+    private int stock;
 
     public FaxMcClad() {
-
+        state = "stand";
+        percent = 0f;
+        stock = 4;
     }
 
     private void jump() {
@@ -49,6 +52,11 @@ public class FaxMcClad implements Character {
 
     @Override
     public void receiveInput(float[] inputs) {
+        // if attack
+
+        // if wavedash
+
+        // if move
 
     }
 

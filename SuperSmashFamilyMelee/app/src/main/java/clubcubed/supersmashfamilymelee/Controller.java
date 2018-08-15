@@ -20,18 +20,13 @@ public class Controller {
     }
 
     public float[] receiveInput(MotionEvent motionEvent) {
-        float[] inputs = new float[]{0f, 0f, 0, 0f};
-
-        for (int i=0; i<motionEvent.getPointerCount(); i++) {
-            motionEvent.getPointerId(i);
-        }
+        float[] inputs = new float[]{motionEvent.getX(), motionEvent.getY()};
 
         return inputs;
     }
 
     public void draw(Canvas canvas) {
         canvas.drawColor(Global.BACKGROUND_COLOUR);
-
 
         canvas.drawRect(attack, attackPaint);
         canvas.drawRect(wavedash, wavedashPaint);
