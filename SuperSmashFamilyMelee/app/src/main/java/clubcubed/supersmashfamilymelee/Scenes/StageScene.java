@@ -36,6 +36,8 @@ public class StageScene implements Scene {
     @Override
     public void draw(Canvas canvas) {
 
+
+        controller.draw(canvas);
     }
 
     @Override
@@ -61,5 +63,6 @@ public class StageScene implements Scene {
     @Override
     public void update() {
 
+        controller.update();
     }
 }

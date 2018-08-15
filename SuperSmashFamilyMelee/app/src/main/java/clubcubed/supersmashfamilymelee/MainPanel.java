@@ -21,8 +21,8 @@ public class MainPanel extends SurfaceView implements SurfaceHolder.Callback {
         // plays background music
         try {
             // Global.SONG_PLAYER = MediaPlayer.create(context, R.raw.background);
-            Global.SONG_PLAYER.setLooping(true);
-            Global.SONG_PLAYER.start();
+            // Global.SONG_PLAYER.setLooping(true);
+            // Global.SONG_PLAYER.start();
         } catch (Exception e) {
             Log.d("MainPanel","play bgm");
             e.printStackTrace();

@@ -16,13 +16,16 @@ import clubcubed.supersmashfamilymelee.Scenes.StageScene;
 import clubcubed.supersmashfamilymelee.Scenes.StageSelectScene;
 
 public class SceneManager implements Scene {
-    private int currentScene;
+    // private int currentScene;
     private HashMap<String, Integer> sceneIndex = new HashMap<>();
     private ArrayList<Scene> scenes = new ArrayList<>();
 
     public SceneManager() {
 
-        currentScene = 0;
+        // Global.SCENE_NAME = "MainMenuScene";
+        // for testing lol
+        Global.SCENE_NAME = "StageScene";
+        // currentScene = 0;
 
         scenes.add(0, new MainMenuScene());
         scenes.add(1, new GameMenuScene());
@@ -43,31 +46,37 @@ public class SceneManager implements Scene {
 
     @Override
     public void draw(Canvas canvas) {
-        scenes.get(currentScene).draw(canvas);
+        // scenes.get(currentScene).draw(canvas);
+        scenes.get(sceneIndex.get(Global.SCENE_NAME)).draw(canvas);
     }
 
     @Override
     public void receiveInput(MotionEvent motionEvent) {
-        scenes.get(currentScene).receiveInput(motionEvent);
+        // scenes.get(currentScene).receiveInput(motionEvent);
+        scenes.get(sceneIndex.get(Global.SCENE_NAME)).receiveInput(motionEvent);
     }
 
     @Override
     public void receiveBack() {
-        scenes.get(currentScene).receiveBack();
+        // scenes.get(currentScene).receiveBack();
+        scenes.get(sceneIndex.get(Global.SCENE_NAME)).receiveBack();
     }
 
     @Override
     public void reset() {
-        scenes.get(currentScene).reset();
+        // scenes.get(currentScene).reset();
+        scenes.get(sceneIndex.get(Global.SCENE_NAME)).reset();
     }
 
     @Override
     public void terminate() {
-        scenes.get(currentScene).terminate();
+        // scenes.get(currentScene).terminate();
+        scenes.get(sceneIndex.get(Global.SCENE_NAME)).terminate();
     }
 
     @Override
     public void update() {
-        scenes.get(currentScene).update();
+        // scenes.get(currentScene).update();
+        scenes.get(sceneIndex.get(Global.SCENE_NAME)).update();
     }
 }
