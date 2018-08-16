@@ -16,27 +16,21 @@ public class StageScene implements Scene {
     private Stage stage;
 
     public StageScene() {
-        /*
-        this.stage = new LastJourneyEnd();
+        // un hardcode it later
+        stage = new LastJourneyEnd();
+        characterOne = new FaxMcClad();
+        characterTwo = new FaxMcClad();
 
-        this.characterOne = new FaxMcClad();
-        this.characterTwo = new FaxMcClad();
 
-        this.controller = new Controller();
-        */
-
-        this.stage = new LastJourneyEnd();
-
-        this.characterOne = new FaxMcClad();
-        this.characterTwo = new FaxMcClad();
-
-        this.controller = new Controller();
+        controller = new Controller();
     }
 
     @Override
     public void draw(Canvas canvas) {
 
-
+        stage.draw(canvas);
+        characterTwo.draw(canvas);
+        characterOne.draw(canvas);
         controller.draw(canvas);
     }
 
@@ -62,7 +56,14 @@ public class StageScene implements Scene {
 
     @Override
     public void update() {
+        // check stage collide
 
+        // check character attack collide
+
+
+        stage.update();
+        characterTwo.update();
+        characterOne.update();
         controller.update();
     }
 }

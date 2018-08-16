@@ -65,17 +65,23 @@ public class Controller {
 
         for (int i=0; i<motionEvent.getPointerCount(); i++) {
 
-            if (stickArea.contains(motionEvent.getX(i), motionEvent.getY(i))) {
-                inputs[0] = (2*motionEvent.getX(i) - xSum) / (xDif);
-                inputs[1] = (2*motionEvent.getY(i) - ySum) / (yDif);
+            if (motionEvent.getAction()!=MotionEvent.ACTION_UP) {
 
-                moveStick(motionEvent.getX(i), motionEvent.getY(i));
+                if (stickArea.contains(motionEvent.getX(i), motionEvent.getY(i))) {
+                    // move
+                    inputs[0] = (2 * motionEvent.getX(i) - xSum) / (xDif);
+                    inputs[1] = (2 * motionEvent.getY(i) - ySum) / (yDif);
+                    moveStick(motionEvent.getX(i), motionEvent.getY(i));
+                } else if (jump.contains(motionEvent.getX(i), motionEvent.getY(i))) {
+                    // jump
+                    inputs[2] = 1f;
+                } else if (attack.contains(motionEvent.getX(i), motionEvent.getY(i))) {
 
-            } else if (jump.contains(motionEvent.getX(i), motionEvent.getY(i))) {
-                inputs[2] = 1f;
-            } else if (attack.contains(motionEvent.getX(i), motionEvent.getY(i))) {
-                inputs[3] = 1f;
+                    inputs[3] = 1f;
+                }
+
             }
+
         }
 
         if (inputs[0]==0f && inputs[1]==0f) {

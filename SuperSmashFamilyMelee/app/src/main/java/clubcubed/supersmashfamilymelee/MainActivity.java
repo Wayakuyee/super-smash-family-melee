@@ -81,7 +81,6 @@ public class MainActivity extends Activity {
 
     @Override
     public boolean onTouchEvent(MotionEvent motionEvent) {
-        Log.d("www", motionEvent.toString());`
         super.onTouchEvent(motionEvent);
         mainPanel.receiveInput(motionEvent);
         return true;
