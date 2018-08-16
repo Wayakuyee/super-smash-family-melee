@@ -25,10 +25,6 @@ public class FaxMcClad implements Character {
 
     }
 
-    private void wavedash() {
-
-    }
-
     private void neutralAttack() {
 
     }
@@ -54,7 +50,7 @@ public class FaxMcClad implements Character {
     public void receiveInput(float[] inputs) {
         // if attack
 
-        // if wavedash
+        // if jump
 
         // if move
 

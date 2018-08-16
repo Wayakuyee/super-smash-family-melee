@@ -9,19 +9,17 @@ import android.view.MotionEvent;
 public class Controller {
     private RectF stickArea;
     private RectF stick;
+    private RectF jump;
     private RectF attack;
-    private RectF wavedash;
 
     private Paint stickPaint;
+    private Paint jumpPaint;
     private Paint attackPaint;
-    private Paint wavedashPaint;
 
     private float xDif;
     private float xSum;
     private float yDif;
     private float ySum;
-
-    private MotionEvent uwu;
 
     private float buttonSize;
 
@@ -29,19 +27,19 @@ public class Controller {
         buttonSize = (Global.SCREEN_WIDTH < Global.SCREEN_HEIGHT) ? (Global.SCREEN_WIDTH/2) : (Global.SCREEN_HEIGHT/2);
         stick = new RectF();
         stickArea = new RectF(0, buttonSize, buttonSize, buttonSize*2);
-        attack = new RectF(Global.SCREEN_WIDTH - buttonSize, 0, Global.SCREEN_WIDTH, buttonSize);
-        wavedash = new RectF(Global.SCREEN_WIDTH - buttonSize, Global.SCREEN_HEIGHT - buttonSize, Global.SCREEN_WIDTH,Global.SCREEN_HEIGHT);
+        jump = new RectF(Global.SCREEN_WIDTH - buttonSize, 0, Global.SCREEN_WIDTH, buttonSize);
+        attack = new RectF(Global.SCREEN_WIDTH - buttonSize, Global.SCREEN_HEIGHT - buttonSize, Global.SCREEN_WIDTH,Global.SCREEN_HEIGHT);
 
         buttonSize /= 4f;
         moveStick(stickArea.centerX(), stickArea.centerY());
 
         stickPaint = new Paint();
         attackPaint = new Paint();
-        wavedashPaint = new Paint();
+        jumpPaint = new Paint();
 
         stickPaint.setColor(Global.STICK_COLOUR);
         attackPaint.setColor(Global.ATTACK_COLOUR);
-        wavedashPaint.setColor(Global.WAVEDASH_COLOUR);
+        jumpPaint.setColor(Global.JUMP_COLOUR);
 
         xDif = stickArea.right - stickArea.left;
         xSum = stickArea.right + stickArea.left;
@@ -62,21 +60,20 @@ public class Controller {
     }
 
     public float[] receiveInput(MotionEvent motionEvent) {
-        // x; y; attack button; wavedash button
+        // x; y; jump button; attack button
         float[] inputs = new float[]{0f, 0f, 0f, 0f};
 
-        uwu = motionEvent;
-
         for (int i=0; i<motionEvent.getPointerCount(); i++) {
+
             if (stickArea.contains(motionEvent.getX(i), motionEvent.getY(i))) {
                 inputs[0] = (2*motionEvent.getX(i) - xSum) / (xDif);
                 inputs[1] = (2*motionEvent.getY(i) - ySum) / (yDif);
 
                 moveStick(motionEvent.getX(i), motionEvent.getY(i));
 
-            } else if (attack.contains(motionEvent.getX(i), motionEvent.getY(i))) {
+            } else if (jump.contains(motionEvent.getX(i), motionEvent.getY(i))) {
                 inputs[2] = 1f;
-            } else if (wavedash.contains(motionEvent.getX(i), motionEvent.getY(i))) {
+            } else if (attack.contains(motionEvent.getX(i), motionEvent.getY(i))) {
                 inputs[3] = 1f;
             }
         }
@@ -85,7 +82,7 @@ public class Controller {
             moveStick(stickArea.centerX(), stickArea.centerY());
         }
 
-        // Log.d("Controller", String.valueOf(inputs[0])+" "+String.valueOf(inputs[1])+" "+String.valueOf(inputs[2])+" "+String.valueOf(inputs[3]));
+        Log.d("Controller", String.valueOf(inputs[0])+" "+String.valueOf(inputs[1])+" "+String.valueOf(inputs[2])+" "+String.valueOf(inputs[3]));
         return inputs;
     }
 
@@ -93,15 +90,15 @@ public class Controller {
         canvas.drawColor(Global.BACKGROUND_COLOUR);
 
         canvas.drawRect(attack, attackPaint);
-        canvas.drawRect(wavedash, wavedashPaint);
+        canvas.drawRect(jump, jumpPaint);
         canvas.drawOval(stick, stickPaint);
     }
 
     public void update() {
         try {
-            Log.d("controller", String.valueOf(uwu.getPointerCount()));
+
         } catch (Exception e) {
-            // E
+
         }
     }
 }

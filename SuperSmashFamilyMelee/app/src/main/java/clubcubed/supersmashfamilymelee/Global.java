@@ -17,5 +17,5 @@ public class Global {
     public static int BACKGROUND_COLOUR = Color.BLACK;
     public static int STICK_COLOUR = Color.GRAY;
     public static int ATTACK_COLOUR = Color.argb(50, 255, 0, 0);
-    public static int WAVEDASH_COLOUR = Color.argb(50, 0, 0, 255);
+    public static int JUMP_COLOUR = Color.argb(50, 0, 0, 255);
 }

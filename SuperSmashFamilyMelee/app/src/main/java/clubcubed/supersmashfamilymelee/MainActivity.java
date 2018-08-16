@@ -8,6 +8,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.Window;
@@ -80,6 +81,7 @@ public class MainActivity extends Activity {
 
     @Override
     public boolean onTouchEvent(MotionEvent motionEvent) {
+        Log.d("www", motionEvent.toString());`
         super.onTouchEvent(motionEvent);
         mainPanel.receiveInput(motionEvent);
         return true;

@@ -21,10 +21,6 @@ public interface Character {
 
     }
 
-    private void wavedash() {
-
-    }
-
     private void neutralAttack() {
 
     }
