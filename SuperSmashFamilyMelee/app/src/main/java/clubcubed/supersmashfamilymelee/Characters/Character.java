@@ -1,9 +1,12 @@
 package clubcubed.supersmashfamilymelee.Characters;
 
 import android.graphics.Canvas;
+import android.graphics.RectF;
 
 public interface Character {
     int getAttackDag();
+    int getStock();
+    void collide(RectF rectF, String type);
     void hit(float[] direction);
     void receiveInput(float[] inputs);
     void draw(Canvas canvas);
@@ -12,18 +15,23 @@ public interface Character {
     /*
 
     state:
-
-
-    movementState:
     stand
-    up
-    down
-    left
-    right
+    jump
+    fall
+    run
+    hit
 
      */
 
     /* copy paste this lol
+    private void spawn() {
+
+    }
+
+    private void die() {
+
+    }
+
     private void jump() {
 
     }
