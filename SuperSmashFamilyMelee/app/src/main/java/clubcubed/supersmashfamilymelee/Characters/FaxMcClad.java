@@ -11,6 +11,8 @@ public class FaxMcClad implements Character {
     private RectF character;
     private Paint characterPaint;
 
+    private float[] inputs;
+
     // attack dag means attack damage and lag
     private int attackDag;
     private int attackDagMax;
@@ -27,6 +29,7 @@ public class FaxMcClad implements Character {
     private double c = 100/3;
 
     public FaxMcClad() {
+        inputs = new float[]{0f, 0f, 0f, 0f};
         // spawn at center
         character = new RectF();
         character.bottom += 100*Global.GAME_RATIO;
@@ -107,51 +110,11 @@ public class FaxMcClad implements Character {
         startTime = System.currentTimeMillis();
     }
 
-    @Override
-    public int getAttackDag() {
-        return attackDag;
-    }
-
-    @Override
-    public int getStock() {
-        return stock;
-    }
-
-    @Override
-    public void collide(RectF rectF, String type) {
-        if (type.equals("blastntZone") && !rectF.contains(character)) {
-            die();
-        } else if (type.equals("hardPlatform") && character.contains(rectF)) {
-            // teleport on top of stage
-            character.top -= (character.bottom - rectF.top);
-            character.bottom -= (character.bottom - rectF.top);
-
-        } else if (type.equals("softPlatform")) {
-            if (character.contains(rectF)) {
-                if (state.equals("crouch")) {
-                    // teleport thru stage
-                    character.bottom += (character.top - rectF.bottom);
-                    character.top += (character.top - rectF.bottom);
-                } else if (!state.equals("jump")) {
-                    // teleport above stage
-                    character.top -= (character.bottom - rectF.bottom);
-                    character.bottom -= (character.bottom - rectF.bottom);
-                    jumpCount = 2;
-
-                    if (state.equals("fall"))
-                        state = "stand";
-                }
-            }
-        }
-    }
-
-    @Override
-    public void hit(float[] direction) {
+    private void move(float x, float y) {
 
     }
 
-    @Override
-    public void receiveInput(float[] inputs) {
+    private void action() {
         // 0 == stand
         // 1 == up
         // 2 == down
@@ -209,12 +172,60 @@ public class FaxMcClad implements Character {
     }
 
     @Override
+    public int getAttackDag() {
+        return attackDag;
+    }
+
+    @Override
+    public int getStock() {
+        return stock;
+    }
+
+    @Override
+    public void collide(RectF rectF, String type) {
+        if (type.equals("blastntZone") && !RectF.intersects(rectF, character)) {
+            die();
+        } else if (type.equals("hardPlatform") && RectF.intersects(rectF, character)) {
+            // teleport on top of stage
+            character.top -= (character.bottom - rectF.top);
+            character.bottom -= (character.bottom - rectF.top);
+
+        } else if (type.equals("softPlatform") && RectF.intersects(rectF, character)) {
+            if (state.equals("crouch")) {
+                // teleport thru stage
+                character.bottom += (character.top - rectF.bottom);
+                character.top += (character.top - rectF.bottom);
+            } else if (!state.equals("jump")) {
+                // teleport above stage
+                character.top -= (character.bottom - rectF.bottom);
+                character.bottom -= (character.bottom - rectF.bottom);
+                jumpCount = 2;
+
+                if (state.equals("fall"))
+                    state = "stand";
+            }
+        }
+    }
+
+    @Override
+    public void hit(float[] direction) {
+
+    }
+
+    @Override
+    public void receiveInput(float[] inputs) {
+        this.inputs = inputs;
+    }
+
+    @Override
     public void draw(Canvas canvas) {
         canvas.drawRect(character, characterPaint);
     }
 
     @Override
     public void update() {
+        action();
+
         character.top += 0.98*Global.GAME_RATIO;
         character.bottom += 0.98*Global.GAME_RATIO;
 
