@@ -18,15 +18,15 @@ public class FaxMcClad implements Character {
     private int attackDagMax;
 
     private String state;
-    private int movementState;
-
-    private float startTime;
-
     private int jumpCount;
+    private int jumpFrame;
+
+    private double startTime;
+
     private float percent;
     private int stock;
 
-    private double c = 100/3;
+    private double c = 60.0/1000;
 
     public FaxMcClad() {
         inputs = new float[]{0f, 0f, 0f, 0f};
@@ -40,10 +40,6 @@ public class FaxMcClad implements Character {
         characterPaint = new Paint();
         characterPaint.setColor(Color.argb(200 , 255,140,0));
 
-        startTime = 0f;
-        attackDag = 0;
-        state = "stand";
-        percent = 0f;
         stock = 4;
     }
 
@@ -55,6 +51,14 @@ public class FaxMcClad implements Character {
         character.bottom = height;
         character.left = (Global.GAME_WIDTH/2*Global.GAME_RATIO) - (width/2);
         character.right = (Global.GAME_WIDTH/2*Global.GAME_RATIO) + (width/2);
+
+        state = "fall";
+
+        jumpCount = 1;
+        startTime = 0f;
+        attackDag = 0;
+        attackDagMax = 0;
+        percent = 0f;
     }
 
     private void die() {
@@ -63,55 +67,65 @@ public class FaxMcClad implements Character {
     }
 
     private void jump() {
-        if (jumpCount > 1) {
+        if (jumpCount>0 && jumpFrame<2) {
             jumpCount -= 1;
-
             state = "jump";
+            jumpFrame = 10;
         }
     }
 
-    private void run(float speed) {
-        speed *= Global.GAME_RATIO;
-        character.left += speed;
-        character.right += speed;
+    private void run(float x) {
+        move((x*Global.GAME_RATIO), 0);
     }
 
-    private void crouch() {
-
+    private void crouch(float x, float y) {
+        state = "crouch";
+        move((x*Global.GAME_RATIO), (-y*Global.GAME_RATIO));
     }
 
     private void neutralAttack() {
-        attackDag = 10;
-        attackDagMax = 10;
+        characterPaint.setColor(Color.argb(200, 255,255,0));
+        attackDag = 30;
+        attackDagMax = 30;
         startTime = System.currentTimeMillis();
     }
 
     private void upAttack() {
-        attackDag = 50;
-        attackDagMax = 50;
+        move(0, -50*Global.GAME_RATIO);
+        characterPaint.setColor(Color.argb(200, 255,0,0));
+        attackDag = 120;
+        attackDagMax = 120;
         startTime = System.currentTimeMillis();
     }
 
     private void downAttack() {
-        attackDag = 50;
-        attackDagMax = 50;
+        characterPaint.setColor(Color.argb(200, 255,255,255));
+        attackDag = 2;
+        attackDagMax = 2;
         startTime = System.currentTimeMillis();
     }
 
     private void leftAttack() {
-        attackDag = 30;
-        attackDagMax = 30;
+        move(-50*Global.GAME_RATIO, 0);
+        characterPaint.setColor(Color.argb(200, 0,0,255));
+        attackDag = 60;
+        attackDagMax = 60;
         startTime = System.currentTimeMillis();
     }
 
     private void rightAttack() {
-        attackDag = 30;
-        attackDagMax = 30;
+        move(50*Global.GAME_RATIO, 0);
+        characterPaint.setColor(Color.argb(200, 0,0,255));
+        attackDag = 60;
+        attackDagMax = 60;
         startTime = System.currentTimeMillis();
     }
 
     private void move(float x, float y) {
-
+        character.top += y;
+        character.bottom += y;
+        character.left += x;
+        character.right += x;
     }
 
     private void action() {
@@ -122,52 +136,53 @@ public class FaxMcClad implements Character {
         // 4 == right
         int direction = 0;
 
-        if (Math.abs(inputs[0]) < Math.abs(inputs[1])) {
-            if (inputs[1] > 0f) {
-                direction = 1;
+        if (!(inputs[0]==0 && inputs[1]==0)) {
+            if (Math.abs(inputs[0]) > Math.abs(inputs[1])) {
+                if (inputs[0] < 0f) {
+                    direction = 3;
+                } else {
+                    direction = 4;
+                }
             } else {
-                direction = 2;
-            }
-        } else {
-            if (inputs[0] < 0f) {
-                direction = 3;
-            } else {
-                direction = 4;
+                if (inputs[1] > 0f) {
+                    direction = 1;
+                } else {
+                    direction = 2;
+                }
             }
         }
 
         // if attack
-        if (inputs[3] > 0) {
-            switch(direction) {
-                case 1:
-                    upAttack();
-                    break;
-                case 2:
-                    downAttack();
-                    break;
-                case 3:
-                    leftAttack();
-                    break;
-                case 4:
-                    rightAttack();
-                    break;
-                default:
-                    neutralAttack();
+        if (inputs[3] > 0 && attackDag < 1) {
+            if (direction == 1) {
+                upAttack();
+            } else if (direction == 2) {
+                downAttack();
+            } else if (direction == 3) {
+                leftAttack();
+            } else if (direction == 4) {
+                rightAttack();
+            } else {
+                neutralAttack();
             }
-            return;
+            // return;
         }
 
         // if jump
         if (inputs[2] > 0f) {
             jump();
-            return;
+            // return;
         }
 
         // if move
         if (direction==3 || direction==4) {
             run(inputs[0]);
-        } else if (direction==2) {
-            crouch();
+        } else if (direction==2 && !state.equals("jump")) {
+            crouch(inputs[0], inputs[1]);
+        }
+
+        if (direction!=2 && state.equals("crouch")) {
+            state = "fall";
         }
     }
 
@@ -185,24 +200,19 @@ public class FaxMcClad implements Character {
     public void collide(RectF rectF, String type) {
         if (type.equals("blastntZone") && !RectF.intersects(rectF, character)) {
             die();
+
         } else if (type.equals("hardPlatform") && RectF.intersects(rectF, character)) {
-            // teleport on top of stage
-            character.top -= (character.bottom - rectF.top);
-            character.bottom -= (character.bottom - rectF.top);
+            if (!state.equals("jump")) {
+                // teleport on top of stage
+                move(0, -(character.bottom - rectF.top));
+                jumpCount = 2;
+            }
 
         } else if (type.equals("softPlatform") && RectF.intersects(rectF, character)) {
-            if (state.equals("crouch")) {
-                // teleport thru stage
-                character.bottom += (character.top - rectF.bottom);
-                character.top += (character.top - rectF.bottom);
-            } else if (!state.equals("jump")) {
+            if (!state.equals("jump") && !state.equals("crouch")) {
                 // teleport above stage
-                character.top -= (character.bottom - rectF.bottom);
-                character.bottom -= (character.bottom - rectF.bottom);
+                move(0, -(character.bottom - rectF.top));
                 jumpCount = 2;
-
-                if (state.equals("fall"))
-                    state = "stand";
             }
         }
     }
@@ -219,6 +229,9 @@ public class FaxMcClad implements Character {
 
     @Override
     public void draw(Canvas canvas) {
+        if (attackDag < 1) {
+            characterPaint.setColor(Color.argb(200 , 255,140,0));
+        }
         canvas.drawRect(character, characterPaint);
     }
 
@@ -226,11 +239,18 @@ public class FaxMcClad implements Character {
     public void update() {
         action();
 
-        character.top += 0.98*Global.GAME_RATIO;
-        character.bottom += 0.98*Global.GAME_RATIO;
+        if (!state.equals("jump")) {
+            move(0, (float) (0.98 * Global.GAME_RATIO));
+        } else if (state.equals("jump") && jumpFrame>0) {
+            move(0, (-5 * Global.GAME_RATIO));
+            jumpFrame -= 1;
+        } else if (state.equals("jump") && jumpFrame<1) {
+            state = "fall";
+        }
 
-        if (attackDag != 0) {
-            attackDag = (int)(attackDagMax - Math.round( (System.currentTimeMillis() - startTime) / c));
+        if (attackDag > 0) {
+            // Log.d("mfw face when i literal die", String.valueOf(attackDag) +" "+ String.valueOf(System.currentTimeMillis()) + " " + String.valueOf(startTime)+ " " + String.valueOf(c));
+            attackDag = (int)((attackDagMax - ((System.currentTimeMillis() - startTime) * c)) +0.5);
         }
 
     }
