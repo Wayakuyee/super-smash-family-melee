@@ -192,6 +192,11 @@ public class FaxMcClad implements Character {
     }
 
     @Override
+    public RectF getCharacter() {
+        return character;
+    }
+
+    @Override
     public int getStock() {
         return stock;
     }
@@ -218,8 +223,20 @@ public class FaxMcClad implements Character {
     }
 
     @Override
-    public void hit(float[] direction) {
+    public void hit(RectF rectF, int attackDag) {
+        if (attackDag>0 && RectF.intersects(rectF, character)) {
+            percent += attackDag;
 
+            float dX = character.centerX() - rectF.centerX();
+            float dY = character.centerY() - rectF.centerY();
+            float dMax = Math.max(dX, dY);
+
+            dX /= dMax;
+            dY /= dMax;
+
+            move(dX*percent, dY*percent);
+            this.attackDag = 0;
+        }
     }
 
     @Override

@@ -22,7 +22,6 @@ public class StageScene implements Scene {
         characterOne = new FaxMcClad();
         characterTwo = new FaxMcClad();
 
-
         controller = new Controller();
     }
 
@@ -85,6 +84,12 @@ public class StageScene implements Scene {
 
         // check character attack collide
 
+        // for dragonball moments lo l
+        RectF rectOne = characterOne.getCharacter();
+        int attackDagOne = characterOne.getAttackDag();
+
+        characterOne.hit(characterTwo.getCharacter(), characterTwo.getAttackDag());
+        characterTwo.hit(rectOne, attackDagOne);
 
         stage.update();
         controller.update();

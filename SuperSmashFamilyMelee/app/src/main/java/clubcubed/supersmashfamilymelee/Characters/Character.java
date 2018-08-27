@@ -5,9 +5,10 @@ import android.graphics.RectF;
 
 public interface Character {
     int getAttackDag();
+    RectF getCharacter();
     int getStock();
     void collide(RectF rectF, String type);
-    void hit(float[] direction);
+    void hit(RectF rectF, int attackDag);
     void receiveInput(float[] inputs);
     void draw(Canvas canvas);
     void update();
