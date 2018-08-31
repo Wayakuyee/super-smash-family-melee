@@ -49,8 +49,8 @@ public class FaxMcClad implements Character {
 
         character.top = 0;
         character.bottom = height;
-        character.left = (Global.GAME_WIDTH/2*Global.GAME_RATIO) - (width/2);
-        character.right = (Global.GAME_WIDTH/2*Global.GAME_RATIO) + (width/2);
+        character.left = (Global.GAME_WIDTH/2*Global.GAME_RATIO+Global.GAME_DIFFERENCE) - (width/2);
+        character.right = (Global.GAME_WIDTH/2*Global.GAME_RATIO+Global.GAME_DIFFERENCE) + (width/2);
 
         state = "fall";
 

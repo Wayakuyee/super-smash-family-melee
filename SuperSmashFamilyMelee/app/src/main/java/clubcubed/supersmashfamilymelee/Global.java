@@ -8,6 +8,7 @@ public class Global {
     public static float GAME_RATIO;
     public static float GAME_HEIGHT;
     public static float GAME_WIDTH;
+    public static float GAME_DIFFERENCE;
 
     public static String SCENE_NAME;
     public static String CHARACTER_ONE_NAME;

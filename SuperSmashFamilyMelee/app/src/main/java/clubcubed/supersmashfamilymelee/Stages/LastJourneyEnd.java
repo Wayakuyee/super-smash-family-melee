@@ -10,6 +10,7 @@ import clubcubed.supersmashfamilymelee.Global;
 
 public class LastJourneyEnd implements Stage {
     private ArrayList<RectF> blastntZone = new ArrayList<>();
+    private Paint blastntZonePaint = new Paint();
 
     private RectF background;
     private Paint backgroundPaint = new Paint();
@@ -23,13 +24,14 @@ public class LastJourneyEnd implements Stage {
     public LastJourneyEnd() {
         softPaint.setARGB(150, 255, 255, 255);
         hardPaint.setARGB(255, 255, 255, 255);
+        blastntZonePaint.setARGB(100, 160,160,160);
         backgroundPaint.setARGB(255, 100, 100, 0);
 
-        hardPlatform.add(new RectF(Global.GAME_WIDTH/8*Global.GAME_RATIO, 300*Global.GAME_RATIO, Global.GAME_WIDTH/8*7*Global.GAME_RATIO, 400*Global.GAME_RATIO));
-        // softPlatform.add(new RectF(Global.GAME_WIDTH/8*Global.GAME_RATIO, 300*Global.GAME_RATIO, Global.GAME_WIDTH/8*7*Global.GAME_RATIO, 400*Global.GAME_RATIO));
-        blastntZone.add(new RectF(0, 0, Global.GAME_WIDTH*Global.GAME_RATIO, Global.GAME_HEIGHT*Global.GAME_RATIO));
+        hardPlatform.add(new RectF(90*Global.GAME_RATIO+Global.GAME_DIFFERENCE, 300*Global.GAME_RATIO, 660*Global.GAME_RATIO+Global.GAME_DIFFERENCE, 400*Global.GAME_RATIO));
+        // softPlatform.add(new RectF(90*Global.GAME_RATIO+Global.GAME_DIFFERENCE, 300*Global.GAME_RATIO, 660*Global.GAME_RATIO+Global.GAME_DIFFERENCE, 400*Global.GAME_RATIO));
+        blastntZone.add(new RectF(Global.GAME_DIFFERENCE, 0, 750*Global.GAME_RATIO+Global.GAME_DIFFERENCE, 500*Global.GAME_RATIO));
 
-        background = new RectF(0, 0, Global.GAME_WIDTH*Global.GAME_RATIO, Global.GAME_HEIGHT*Global.GAME_RATIO);
+        background = new RectF(0, 0, Global.SCREEN_WIDTH, Global.SCREEN_HEIGHT);
     }
 
     @Override
@@ -51,6 +53,8 @@ public class LastJourneyEnd implements Stage {
     public void draw(Canvas canvas) {
         canvas.drawRect(background, backgroundPaint);
 
+        for (RectF rectF : blastntZone)
+            canvas.drawRect(rectF, blastntZonePaint);
         for (RectF rectF : softPlatform)
             canvas.drawRect(rectF, softPaint);
         for (RectF rectF : hardPlatform)
