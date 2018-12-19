@@ -88,6 +88,11 @@ public class MainPanel extends SurfaceView implements SurfaceHolder.Callback {
         sceneManager.receiveBack();
     }
 
+
+    public void receiveBluetoothInput() {
+
+    }
+
     /**
      * draws every rectangle
      * @param canvas
@@ -98,6 +103,9 @@ public class MainPanel extends SurfaceView implements SurfaceHolder.Callback {
         sceneManager.draw(canvas);
     }
 
+    /**
+     *
+     */
     public void update() {
         sceneManager.update();
     }

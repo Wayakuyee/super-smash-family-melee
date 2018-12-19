@@ -1,8 +1,10 @@
 package clubcubed.supersmashfamilymelee;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
 import android.util.DisplayMetrics;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
@@ -12,6 +14,7 @@ import android.view.WindowManager;
 public class MainActivity extends Activity {
     // private SharedPreferences savedPrefs;
     private MainPanel mainPanel;
+    private BluetoothStuff bluetoothStuff;
 
     /**
      * lol
@@ -45,9 +48,15 @@ public class MainActivity extends Activity {
 
         Global.GAME_HEIGHT = 500f;
         Global.GAME_WIDTH = 750f;
+        // refer to past conversation
+        // so we dont need to talk about this again
+        // note: its SCREEN_hight
         Global.GAME_RATIO = Global.SCREEN_HEIGHT / Global.GAME_HEIGHT;
+        // trihard7 bars
         Global.GAME_DIFFERENCE = (Global.SCREEN_WIDTH - (Global.GAME_WIDTH*Global.GAME_RATIO)) /2;
 
+        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.BLUETOOTH}, 1);
+        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, 1);
 
         // asks for file access permissions
         /* probably NOT NEEDED for melee
@@ -57,6 +66,19 @@ public class MainActivity extends Activity {
         }
         */
 
+//        BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+//        if (mBluetoothAdapter == null) {
+//            // Device doesn't support Bluetooth
+//            Log.d("mainactivity", "die");
+//        }
+//
+//        if (!mBluetoothAdapter.isEnabled()) {
+//            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+//            startActivityForResult(enableBtIntent,0);
+//        }
+
+//        BluetoothSocket = new BluetoothSocket()
+//        bluetoothStuff = new BluetoothStuff()
         // creates the main panel
         mainPanel = new MainPanel(this);
         setContentView(mainPanel);
@@ -81,6 +103,7 @@ public class MainActivity extends Activity {
     public boolean onTouchEvent(MotionEvent motionEvent) {
         super.onTouchEvent(motionEvent);
         mainPanel.receiveInput(motionEvent);
+
         return true;
     }
 }

@@ -27,9 +27,19 @@ public class LastJourneyEnd implements Stage {
         blastntZonePaint.setARGB(100, 160,160,160);
         backgroundPaint.setARGB(255, 100, 100, 0);
 
-        hardPlatform.add(new RectF(90*Global.GAME_RATIO+Global.GAME_DIFFERENCE, 300*Global.GAME_RATIO, 660*Global.GAME_RATIO+Global.GAME_DIFFERENCE, 400*Global.GAME_RATIO));
+        hardPlatform.add(new RectF(
+                90*Global.GAME_RATIO+Global.GAME_DIFFERENCE,
+                300*Global.GAME_RATIO,
+                660*Global.GAME_RATIO+Global.GAME_DIFFERENCE,
+                400*Global.GAME_RATIO
+        ));
         // softPlatform.add(new RectF(90*Global.GAME_RATIO+Global.GAME_DIFFERENCE, 300*Global.GAME_RATIO, 660*Global.GAME_RATIO+Global.GAME_DIFFERENCE, 400*Global.GAME_RATIO));
-        blastntZone.add(new RectF(Global.GAME_DIFFERENCE, 0, 750*Global.GAME_RATIO+Global.GAME_DIFFERENCE, 500*Global.GAME_RATIO));
+        blastntZone.add(new RectF(
+                Global.GAME_DIFFERENCE,
+                0,
+                750*Global.GAME_RATIO+Global.GAME_DIFFERENCE,
+                500*Global.GAME_RATIO
+        ));
 
         background = new RectF(0, 0, Global.SCREEN_WIDTH, Global.SCREEN_HEIGHT);
     }

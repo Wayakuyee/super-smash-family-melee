@@ -80,7 +80,7 @@ public class FaxMcClad implements Character {
 
     private void crouch(float x, float y) {
         state = "crouch";
-        move((x*Global.GAME_RATIO), (-y*Global.GAME_RATIO));
+        move((x*Global.GAME_RATIO), (-y*2*Global.GAME_RATIO));
     }
 
     private void neutralAttack() {
@@ -122,6 +122,7 @@ public class FaxMcClad implements Character {
     }
 
     private void move(float x, float y) {
+        x *= 2.0f;
         character.top += y;
         character.bottom += y;
         character.left += x;
@@ -227,14 +228,18 @@ public class FaxMcClad implements Character {
         if (attackDag>0 && RectF.intersects(rectF, character)) {
             percent += attackDag;
 
+            /*
             float dX = character.centerX() - rectF.centerX();
             float dY = character.centerY() - rectF.centerY();
             float dMax = Math.max(dX, dY);
-
             dX /= dMax;
             dY /= dMax;
+            */
 
-            move(dX*percent, dY*percent);
+            move(
+                    ((character.centerX()-rectF.centerX())/Global.GAME_RATIO) * percent/100,
+                    ((character.centerY()-rectF.centerY())/Global.GAME_RATIO) * percent/100
+            );
             this.attackDag = 0;
         }
     }
@@ -257,7 +262,7 @@ public class FaxMcClad implements Character {
         action();
 
         if (!state.equals("jump")) {
-            move(0, (float) (0.98 * Global.GAME_RATIO));
+            move(0, Global.GAME_RATIO);
         } else if (state.equals("jump") && jumpFrame>0) {
             move(0, (-5 * Global.GAME_RATIO));
             jumpFrame -= 1;
