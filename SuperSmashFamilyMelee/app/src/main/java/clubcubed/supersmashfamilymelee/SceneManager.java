@@ -3,9 +3,6 @@ package clubcubed.supersmashfamilymelee;
 import android.graphics.Canvas;
 import android.view.MotionEvent;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-
 import clubcubed.supersmashfamilymelee.Scenes.AdventureScene;
 import clubcubed.supersmashfamilymelee.Scenes.CharacterSelectScene;
 import clubcubed.supersmashfamilymelee.Scenes.GameMenuScene;
@@ -16,58 +13,68 @@ import clubcubed.supersmashfamilymelee.Scenes.StageScene;
 import clubcubed.supersmashfamilymelee.Scenes.StageSelectScene;
 
 public class SceneManager implements Scene {
-    // private int currentScene;
-    private HashMap<String, Scene> scenes = new HashMap<>();
-    private ArrayList<Scene> scenes = new ArrayList<>();
+    private Scene scene;
 
     public SceneManager() {
 
-        // Global.SCENE_NAME = "MainMenuScene";
-        // for testing lol
-        Global.SCENE_NAME = "StageScene";
+    }
 
-        scenes.put("MainMenuScene", new MainMenuScene());
-        scenes.put("GameMenuScene", new GameMenuScene());
-        scenes.put("OptionScene", new OptionScene());
-        scenes.put("CharacterSelectScene", new CharacterSelectScene());
-        scenes.put("StageSelectScene", new StageSelectScene());
-        scenes.put("StageScene", new StageScene());
-        scenes.put("AdventureScene", new AdventureScene());
+    public SceneManager(int i) {
+        // changeScene("MainMenuScene");
+        // changeScene("GameMenuScene");
+        changeScene("StageScene");
+    }
+
+    protected void changeScene(String sceneName) {
+        switch (sceneName) {
+            case "MainMenuScene":
+                scene = new MainMenuScene();
+                break;
+            case "GameMenuScene":
+                scene = new GameMenuScene();
+                break;
+            case "OptionScene":
+                scene = new OptionScene();
+                break;
+            case "CharacterSelectScene":
+                scene = new CharacterSelectScene();
+                break;
+            case "StageSelectScene":
+                scene = new StageSelectScene();
+                break;
+            case "StageScene":
+                scene = new StageScene();
+                break;
+            case "AdventureScene":
+                scene = new AdventureScene();
+                break;
+            default:
+                scene = new MainMenuScene();
+        }
     }
 
     @Override
     public void draw(Canvas canvas) {
-        // scenes.get(currentScene).draw(canvas);
-        scenes.get(Global.SCENE_NAME).draw(canvas);
+        scene.draw(canvas);
     }
 
     @Override
     public void receiveInput(MotionEvent motionEvent) {
-        // scenes.get(currentScene).receiveInput(motionEvent);
-        scenes.get(Global.SCENE_NAME).receiveInput(motionEvent);
+        scene.receiveInput(motionEvent);
     }
 
     @Override
     public void receiveBack() {
-        // scenes.get(currentScene).receiveBack();
-        scenes.get(Global.SCENE_NAME).receiveBack();
+        scene.receiveBack();
     }
 
     @Override
     public void reset() {
-        // scenes.get(currentScene).reset();
-        scenes.get(Global.SCENE_NAME).reset();
-    }
-
-    @Override
-    public void terminate() {
-        // scenes.get(currentScene).terminate();
-        scenes.get(Global.SCENE_NAME).terminate();
+        scene.reset();
     }
 
     @Override
     public void update() {
-        // scenes.get(currentScene).update();
-        scenes.get(Global.SCENE_NAME).update();
+        scene.update();
     }
 }

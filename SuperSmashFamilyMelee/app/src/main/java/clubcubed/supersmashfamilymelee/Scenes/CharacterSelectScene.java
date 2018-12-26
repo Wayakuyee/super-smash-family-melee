@@ -3,9 +3,11 @@ package clubcubed.supersmashfamilymelee.Scenes;
 import android.graphics.Canvas;
 import android.view.MotionEvent;
 
-public class CharacterSelectScene implements Scene {
-    public CharacterSelectScene() {
+import clubcubed.supersmashfamilymelee.SceneManager;
 
+public class CharacterSelectScene extends SceneManager implements Scene {
+    public CharacterSelectScene() {
+        reset();
     }
 
     @Override
@@ -20,7 +22,7 @@ public class CharacterSelectScene implements Scene {
 
     @Override
     public void receiveBack() {
-
+        terminate("GameMenuScene");
     }
 
     @Override
@@ -29,12 +31,11 @@ public class CharacterSelectScene implements Scene {
     }
 
     @Override
-    public void terminate() {
-
+    public void update() {
+        terminate("StageSelectScene");
     }
 
-    @Override
-    public void update() {
-
+    private void terminate(String sceneName) {
+        super.changeScene(sceneName);
     }
 }

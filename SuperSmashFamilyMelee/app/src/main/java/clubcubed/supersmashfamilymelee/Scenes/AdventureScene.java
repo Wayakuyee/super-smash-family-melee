@@ -3,7 +3,9 @@ package clubcubed.supersmashfamilymelee.Scenes;
 import android.graphics.Canvas;
 import android.view.MotionEvent;
 
-public class AdventureScene implements Scene {
+import clubcubed.supersmashfamilymelee.SceneManager;
+
+public class AdventureScene extends SceneManager implements Scene {
     public AdventureScene() {
 
     }
@@ -29,12 +31,11 @@ public class AdventureScene implements Scene {
     }
 
     @Override
-    public void terminate() {
+    public void update() {
 
     }
 
-    @Override
-    public void update() {
-
+    private void terminate(String sceneName) {
+        super.changeScene(sceneName);
     }
 }

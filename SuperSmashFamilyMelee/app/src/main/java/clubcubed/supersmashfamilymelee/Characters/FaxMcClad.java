@@ -62,7 +62,7 @@ public class FaxMcClad implements Character {
     }
 
     private void die() {
-        // stock -= 1;
+        stock -= 1;
         spawn();
     }
 

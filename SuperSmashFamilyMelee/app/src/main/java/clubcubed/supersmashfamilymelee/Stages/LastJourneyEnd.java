@@ -73,6 +73,6 @@ public class LastJourneyEnd implements Stage {
 
     @Override
     public void update() {
-        // lol
+        // no changes
     }
 }

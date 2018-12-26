@@ -8,7 +8,7 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
 public class MainPanel extends SurfaceView implements SurfaceHolder.Callback {
-    private MainThread thread;
+    private MainThread mainThread;
     private SceneManager sceneManager;
 
     /**
@@ -28,10 +28,10 @@ public class MainPanel extends SurfaceView implements SurfaceHolder.Callback {
             e.printStackTrace();
         }
 
-        // creates scene manager and thread to run program
+        // creates scene manager and main thread to run program
         getHolder().addCallback(this);
-        thread = new MainThread(getHolder(), this);
-        sceneManager = new SceneManager();
+        mainThread = new MainThread(getHolder(), this);
+        sceneManager = new SceneManager(0);
         setFocusable(true);
     }
 
@@ -41,9 +41,9 @@ public class MainPanel extends SurfaceView implements SurfaceHolder.Callback {
      */
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
-        thread = new MainThread(getHolder(), this);
-        thread.setRunning(true);
-        thread.start();
+        mainThread = new MainThread(getHolder(), this);
+        mainThread.setRunning(true);
+        mainThread.start();
     }
 
     /**
@@ -63,8 +63,8 @@ public class MainPanel extends SurfaceView implements SurfaceHolder.Callback {
         // while (retry) {
         while(true) {
             try {
-                thread.setRunning(false);
-                thread.join();
+                mainThread.setRunning(false);
+                mainThread.join();
                 break;
             } catch (Exception e) {
                 e.printStackTrace();
@@ -86,11 +86,6 @@ public class MainPanel extends SurfaceView implements SurfaceHolder.Callback {
      */
     public void receiveBack() {
         sceneManager.receiveBack();
-    }
-
-
-    public void receiveBluetoothInput() {
-
     }
 
     /**

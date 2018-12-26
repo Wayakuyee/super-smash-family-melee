@@ -8,7 +8,7 @@ public class MainThread extends Thread {
     private MainPanel mainPanel;
     public static Canvas canvas;
 
-    public static final int MAX_FPS = 60;
+    private static final int MAX_FPS = 60;
     private double averageFPS;
     private boolean running;
 
@@ -34,8 +34,11 @@ public class MainThread extends Thread {
     /**
      * runs the game
      * big credits to stackoverflow
+     *
      * i dont fully understand the details here
      * but i have a general idea
+     *
+     * nvm i understand it now B)
      */
     @Override
     public void run() {

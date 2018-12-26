@@ -8,6 +8,5 @@ public interface Scene {
     void receiveInput(MotionEvent motionEvent);
     void receiveBack();
     void reset();
-    void terminate();
     void update();
 }

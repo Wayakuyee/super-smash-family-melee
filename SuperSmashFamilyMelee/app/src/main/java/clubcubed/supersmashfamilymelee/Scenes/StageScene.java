@@ -1,28 +1,30 @@
 package clubcubed.supersmashfamilymelee.Scenes;
 
 import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.graphics.RectF;
+import android.os.CountDownTimer;
 import android.view.MotionEvent;
 
 import clubcubed.supersmashfamilymelee.Characters.Character;
 import clubcubed.supersmashfamilymelee.Characters.FaxMcClad;
 import clubcubed.supersmashfamilymelee.Controller;
+import clubcubed.supersmashfamilymelee.Global;
+import clubcubed.supersmashfamilymelee.SceneManager;
 import clubcubed.supersmashfamilymelee.Stages.LastJourneyEnd;
 import clubcubed.supersmashfamilymelee.Stages.Stage;
 
-public class StageScene implements Scene {
+public class StageScene extends SceneManager implements Scene {
+    private int gameState;
+    private Paint paint;
     private Controller controller;
     private Character characterOne;
     private Character characterTwo;
     private Stage stage;
 
     public StageScene() {
-        // un hardcode it later
-        stage = new LastJourneyEnd();
-        characterOne = new FaxMcClad();
-        characterTwo = new FaxMcClad();
-
-        controller = new Controller();
+        reset();
     }
 
     @Override
@@ -33,6 +35,34 @@ public class StageScene implements Scene {
         characterOne.draw(canvas);
 
         controller.draw(canvas);
+
+        if (gameState != 0) {
+            canvas.drawText("OOOOOOOOOOOOOOOOOOOO", 0, 0, paint);
+
+            switch (gameState) {
+                case (1):
+                    // player 1 wins
+                    break;
+                case (2):
+                    // player 2 wins
+                    break;
+                default:
+                    // tie
+            }
+
+            new CountDownTimer(3000, 1000) {
+                @Override
+                public void onTick(long l) {
+
+                }
+
+                @Override
+                public void onFinish() {
+
+                }
+            }.start();
+            terminate("CharacterSelectScene");
+        }
     }
 
     @Override
@@ -47,12 +77,34 @@ public class StageScene implements Scene {
 
     @Override
     public void reset() {
+        Global.STAGE_NAME = "a";
+        Global.CHARACTER_ONE_NAME = "a";
+        Global.CHARACTER_TWO_NAME = "a";
 
-    }
+        Paint paint = new Paint();
+        paint.setColor(Color.WHITE);
+        paint.setTextSize(300);
 
-    @Override
-    public void terminate() {
+        switch (Global.STAGE_NAME) {
+            default:
+                stage = new LastJourneyEnd();
+                break;
+        }
 
+        switch (Global.CHARACTER_ONE_NAME) {
+            default:
+                characterOne = new FaxMcClad();
+                break;
+        }
+
+        switch (Global.CHARACTER_TWO_NAME) {
+            default:
+                characterTwo = new FaxMcClad();
+                break;
+        }
+
+        controller = new Controller();
+        gameState = 0;
     }
 
     @Override
@@ -94,37 +146,18 @@ public class StageScene implements Scene {
         stage.update();
         controller.update();
 
-        /* if (characterOne.getStock() <= 0) {
-            new CountDownTimer(3000, 1000) {
-                @Override
-                public void onTick(long l) {
-
-                }
-
-                @Override
-                public void onFinish() {
-
-                }
-            }.start();
-
-            Global.SCENE_NAME = "StageSelectScene";
-            terminate();
+        if (characterOne.getStock() <= 0) {
+            if (characterTwo.getStock() <= 0) {
+                gameState = 3;
+            }
+            gameState = 1;
         } else if (characterTwo.getStock() <= 0) {
-            new CountDownTimer(3000, 1000) {
-                @Override
-                public void onTick(long l) {
-
-                }
-
-                @Override
-                public void onFinish() {
-
-                }
-            }.start();
-
-            Global.SCENE_NAME = "StageSelectScene";
-            terminate();
+            gameState = 2;
         }
-        */
+    }
+
+    private void terminate(String sceneName) {
+        super.reset();
+        // super.changeScene(sceneName);
     }
 }
