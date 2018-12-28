@@ -3,9 +3,9 @@ package clubcubed.supersmashfamilymelee.Scenes;
 import android.graphics.Canvas;
 import android.view.MotionEvent;
 
-import clubcubed.supersmashfamilymelee.SceneManager;
+import clubcubed.supersmashfamilymelee.Global;
 
-public class MainMenuScene extends SceneManager implements Scene {
+public class MainMenuScene implements Scene {
 
     public MainMenuScene() {
 
@@ -37,6 +37,6 @@ public class MainMenuScene extends SceneManager implements Scene {
     }
 
     private void terminate(String sceneName) {
-        super.changeScene(sceneName);
+        Global.SCENE_NAME = sceneName;
     }
 }

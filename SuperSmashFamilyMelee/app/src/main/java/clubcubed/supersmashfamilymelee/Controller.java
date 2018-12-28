@@ -4,7 +4,6 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
-import android.util.Log;
 import android.view.MotionEvent;
 
 public class Controller {
@@ -98,7 +97,7 @@ public class Controller {
             moveStick(stickArea.centerX(), stickArea.centerY());
         }
 
-        Log.d("Controller", String.valueOf(inputs[0])+" "+String.valueOf(inputs[1])+" "+String.valueOf(inputs[2])+" "+String.valueOf(inputs[3]));
+        // Log.d("Controller", String.valueOf(inputs[0])+" "+String.valueOf(inputs[1])+" "+String.valueOf(inputs[2])+" "+String.valueOf(inputs[3]));
         return inputs;
     }
 

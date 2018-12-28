@@ -1,19 +1,22 @@
 package clubcubed.supersmashfamilymelee.Scenes;
 
+import android.bluetooth.BluetoothDevice;
 import android.graphics.Canvas;
 import android.graphics.RectF;
+import android.util.Log;
 import android.view.MotionEvent;
+
+import java.util.HashMap;
+import java.util.Set;
 
 import clubcubed.supersmashfamilymelee.Aesthetics.DankButton;
 import clubcubed.supersmashfamilymelee.Global;
-import clubcubed.supersmashfamilymelee.SceneManager;
 
-public class GameMenuScene extends SceneManager implements Scene {
+public class GameMenuScene implements Scene {
     private DankButton bg;
     private DankButton adventure;
     private DankButton melee;
     private DankButton bluetooth;
-
 
     public GameMenuScene() {
         reset();
@@ -29,20 +32,41 @@ public class GameMenuScene extends SceneManager implements Scene {
 
     @Override
     public void receiveInput(MotionEvent motionEvent) {
-        if (motionEvent.getAction() == MotionEvent.ACTION_POINTER_UP) {
-            if (adventure.collide(motionEvent.getX(), motionEvent.getY())) {
-                terminate("AdventureScene");
-            } else if (melee.collide(motionEvent.getX(), motionEvent.getY())){
-                terminate("CharacterSelectScene");
-            } else if (bluetooth.collide(motionEvent.getX(), motionEvent.getY())) {
+        switch (motionEvent.getAction()) {
+            case (MotionEvent.ACTION_DOWN):
+                if (adventure.collide(motionEvent.getX(), motionEvent.getY())) {
+                    terminate("AdventureScene");
+                } else if (melee.collide(motionEvent.getX(), motionEvent.getY())) {
+                    terminate("CharacterSelectScene");
+                } else if (bluetooth.collide(motionEvent.getX(), motionEvent.getY())) {
+                    if (Global.REQUEST_ENABLE_BT < 0 && Global.BLUETOOTH_ADAPTER != null && Global.BLUETOOTH_ADAPTER.isEnabled()) {
+                        Set<BluetoothDevice> bluetoothDevices = Global.BLUETOOTH_ADAPTER.getBondedDevices();
+                        HashMap<String, String> macs = new HashMap<>();
 
-            }
+                        if (bluetoothDevices.size() > 0) {
+                            // There are paired devices. Get the name and address of each paired device.
+                            for (BluetoothDevice device : bluetoothDevices) {
+                                String deviceName = device.getName();
+                                // MAC address
+                                String deviceHardwareAddress = device.getAddress();
+                                macs.put(deviceHardwareAddress, deviceName);
+                            }
+                        }
+
+                        for (String i : macs.keySet()) {
+                            Log.d("GameMenuScene", String.format("%s : %s", i, macs.get(i)));
+                        }
+                    } else {
+                        bluetooth.setRectARGB(255, 255, 0, 0);
+                        bluetooth.setText("Restart Game");
+                    }
+                }
         }
     }
 
     @Override
     public void receiveBack() {
-        terminate("MainMenuScene");
+        terminate("GameMenuScene");
     }
 
     @Override
@@ -81,6 +105,6 @@ public class GameMenuScene extends SceneManager implements Scene {
     }
 
     private void terminate(String sceneName) {
-        super.changeScene(sceneName);
+        Global.SCENE_NAME = sceneName;
     }
 }

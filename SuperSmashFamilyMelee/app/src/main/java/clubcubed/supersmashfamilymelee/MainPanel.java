@@ -31,7 +31,9 @@ public class MainPanel extends SurfaceView implements SurfaceHolder.Callback {
         // creates scene manager and main thread to run program
         getHolder().addCallback(this);
         mainThread = new MainThread(getHolder(), this);
-        sceneManager = new SceneManager(0);
+
+        Global.SCENE_NAME = "GameMenuScene";
+        sceneManager = new SceneManager();
         setFocusable(true);
     }
 

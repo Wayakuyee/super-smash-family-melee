@@ -1,8 +1,12 @@
 package clubcubed.supersmashfamilymelee;
 
+import android.Manifest;
 import android.app.Activity;
+import android.bluetooth.BluetoothAdapter;
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
 import android.util.DisplayMetrics;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
@@ -59,15 +63,29 @@ public class MainActivity extends Activity {
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
         }
         */
+        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.BLUETOOTH}, 1);
+        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.BLUETOOTH_ADMIN}, 1);
+        Global.BLUETOOTH_ADAPTER = BluetoothAdapter.getDefaultAdapter();
 
-//        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.BLUETOOTH}, 1);
-//        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.BLUETOOTH_ADMIN}, 1);
-//        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, 1);
-//        Global.BLUETOOTH_ADAPTER = BluetoothAdapter.getDefaultAdapter();
+        if (Global.BLUETOOTH_ADAPTER != null) {
+            if (!Global.BLUETOOTH_ADAPTER.isEnabled()) {
+                Global.REQUEST_ENABLE_BT = 727;
+                startActivityForResult(new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE), Global.REQUEST_ENABLE_BT);
+            }
+        }
 
         // creates the main panel
         mainPanel = new MainPanel(this);
         setContentView(mainPanel);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == Global.REQUEST_ENABLE_BT) {
+            if (resultCode == RESULT_OK) {
+                Global.REQUEST_ENABLE_BT = -1;
+            }
+        }
     }
 
     @Override

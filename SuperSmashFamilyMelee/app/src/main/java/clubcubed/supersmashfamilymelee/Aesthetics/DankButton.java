@@ -21,6 +21,10 @@ public class DankButton {
         this(rectF, new Paint(), "", new Paint());
     }
 
+    public DankButton(String text) {
+        this(new RectF(), text);
+    }
+
     public DankButton (RectF rectF, String text) {
         this(rectF, new Paint(), text, new Paint());
     }
@@ -73,6 +77,10 @@ public class DankButton {
 
     public void setPulse(int max) {
         pulse[1] = Math.abs(max);
+    }
+
+    public String getText() {
+        return text;
     }
 
     public void draw(Canvas canvas) {

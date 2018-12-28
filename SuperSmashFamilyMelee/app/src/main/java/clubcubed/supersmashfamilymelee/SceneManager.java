@@ -13,20 +13,16 @@ import clubcubed.supersmashfamilymelee.Scenes.StageScene;
 import clubcubed.supersmashfamilymelee.Scenes.StageSelectScene;
 
 public class SceneManager implements Scene {
+    private String sceneName;
     private Scene scene;
 
     public SceneManager() {
-
+        changeScene();
     }
 
-    public SceneManager(int i) {
-        // changeScene("MainMenuScene");
-        // changeScene("GameMenuScene");
-        changeScene("StageScene");
-    }
-
-    protected void changeScene(String sceneName) {
-        switch (sceneName) {
+    private void changeScene() {
+        sceneName = Global.SCENE_NAME;
+        switch (Global.SCENE_NAME) {
             case "MainMenuScene":
                 scene = new MainMenuScene();
                 break;
@@ -75,6 +71,9 @@ public class SceneManager implements Scene {
 
     @Override
     public void update() {
+        if (!Global.SCENE_NAME.equals(sceneName)) {
+            changeScene();
+        }
         scene.update();
     }
 }
