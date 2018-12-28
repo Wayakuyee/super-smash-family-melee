@@ -13,6 +13,7 @@ public class DankButton {
     private String text;
     private Paint textPaint;
     private float textSize;
+    private float pulseSize;
     private int[] tARGB = new int[4];
     private int[] rARGB = new int[4];
     private int[] pulse = new int[2];
@@ -34,6 +35,7 @@ public class DankButton {
         setRectFPaint(rectPaint);
         setText(text);
         setTextPaint(textPaint);
+        setPulseSize(3);
     }
 
     public boolean collide(float x, float y) {
@@ -79,6 +81,15 @@ public class DankButton {
         pulse[1] = Math.abs(max);
     }
 
+    public void setPulseSize(float size) {
+        pulseSize = size;
+    }
+
+    public void addYPosition(float yPosition) {
+        rectF.bottom += yPosition;
+        rectF.top += yPosition;
+    }
+
     public String getText() {
         return text;
     }
@@ -101,17 +112,17 @@ public class DankButton {
 
     public void pulseUpdate() {
         if (pulse[0] == 0) {
-            rectF.top -= 3 * Global.GAME_RATIO;
-            rectF.bottom += 3 * Global.GAME_RATIO;
-            rectF.left -= 3 * Global.GAME_RATIO;
-            rectF.right += 3 * Global.GAME_RATIO;
+            rectF.top -= pulseSize * Global.GAME_RATIO;
+            rectF.bottom += pulseSize * Global.GAME_RATIO;
+            rectF.left -= pulseSize * Global.GAME_RATIO;
+            rectF.right += pulseSize * Global.GAME_RATIO;
             textPaint.setTextSize(textSize);
         } else if (pulse[0] == pulse[1]) {
-            rectF.top += 3 * Global.GAME_RATIO;
-            rectF.bottom -= 3 * Global.GAME_RATIO;
-            rectF.left += 3 * Global.GAME_RATIO;
-            rectF.right -= 3 * Global.GAME_RATIO;
-            textPaint.setTextSize(textPaint.getTextSize() - (3*Global.GAME_RATIO));
+            rectF.top += pulseSize * Global.GAME_RATIO;
+            rectF.bottom -= pulseSize * Global.GAME_RATIO;
+            rectF.left += pulseSize * Global.GAME_RATIO;
+            rectF.right -= pulseSize * Global.GAME_RATIO;
+            textPaint.setTextSize(textPaint.getTextSize() - (pulseSize*Global.GAME_RATIO));
             pulse[0] *= -1;
         }
         pulse[0]++;

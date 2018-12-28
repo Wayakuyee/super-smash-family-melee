@@ -106,7 +106,8 @@ public class StageScene implements Scene {
         pauseScreen.setTextARGB(255, 255, 255, 255);
         pauseScreen.setTextSize(Global.SCREEN_HEIGHT/6);
         pauseScreen.setRectARGB(100, 255, 0, 0);
-        pauseScreen.setPulse(1);
+        pauseScreen.setPulseSize(30);
+        pauseScreen.setPulse(2);
 
         switch (Global.STAGE_NAME) {
             case ("LastJourneyEnd"):
