@@ -25,22 +25,22 @@ public class FaxMcClad implements Character {
 
     private float percent;
     private int stock;
+    private int player;
 
     private double c = 60.0/1000;
 
-    public FaxMcClad() {
+    public FaxMcClad(int player) {
         inputs = new float[]{0f, 0f, 0f, 0f};
-        // spawn at center
-        character = new RectF();
-        character.bottom += 100*Global.GAME_RATIO;
-        character.left -= 500/20*Global.GAME_RATIO;
-        character.right += 500/20*Global.GAME_RATIO;
-        spawn();
+
+        character = new RectF(0, 0, 50*Global.GAME_RATIO, 100*Global.GAME_RATIO);
+        this.player = player;
 
         characterPaint = new Paint();
         characterPaint.setColor(Color.argb(200 , 255,140,0));
 
         stock = 4;
+
+        spawn();
     }
 
     private void spawn() {
@@ -49,8 +49,16 @@ public class FaxMcClad implements Character {
 
         character.top = 0;
         character.bottom = height;
-        character.left = (Global.GAME_WIDTH/2*Global.GAME_RATIO+Global.GAME_DIFFERENCE) - (width/2);
-        character.right = (Global.GAME_WIDTH/2*Global.GAME_RATIO+Global.GAME_DIFFERENCE) + (width/2);
+
+        if (player == 1) {
+            // top left, 1/4 screen
+            character.left = (Global.GAME_WIDTH/2*Global.GAME_RATIO +Global.GAME_DIFFERENCE) - (width/2);
+            character.right = (Global.GAME_WIDTH/2*Global.GAME_RATIO +Global.GAME_DIFFERENCE) + (width/2);
+        } else {
+            // top right, 3/4 screen
+            character.left = (Global.GAME_WIDTH/2*Global.GAME_RATIO +Global.GAME_DIFFERENCE) - (width/2);
+            character.right = (Global.GAME_WIDTH/2*Global.GAME_RATIO +Global.GAME_DIFFERENCE) + (width/2);
+        }
 
         state = "fall";
 
@@ -247,6 +255,16 @@ public class FaxMcClad implements Character {
     @Override
     public void receiveInput(float[] inputs) {
         this.inputs = inputs;
+    }
+
+    @Override
+    public void receiveBluetooth(byte[] bytes) {
+        String[] temp = new String(bytes).split(";");
+        this.inputs = new float[]{
+                Float.parseFloat(temp[0]),
+                Float.parseFloat(temp[1]),
+                Float.parseFloat(temp[2]),
+                Float.parseFloat(temp[3])};
     }
 
     @Override

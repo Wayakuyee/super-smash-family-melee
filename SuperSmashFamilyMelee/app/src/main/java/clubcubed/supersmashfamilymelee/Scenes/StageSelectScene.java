@@ -11,6 +11,8 @@ import clubcubed.supersmashfamilymelee.Global;
 
 public class StageSelectScene implements Scene {
     private DankButton bg;
+    private DankButton wait;
+    private boolean waiting;
     private ArrayList<DankButton> stages = new ArrayList<>();
 
     public StageSelectScene() {
@@ -20,8 +22,13 @@ public class StageSelectScene implements Scene {
     @Override
     public void draw(Canvas canvas) {
         bg.draw(canvas);
+
         for (DankButton s : stages) {
             s.draw(canvas);
+        }
+
+        if (waiting) {
+            wait.draw(canvas);
         }
     }
 
@@ -31,6 +38,7 @@ public class StageSelectScene implements Scene {
             for (DankButton s : stages) {
                 if (s.collide(motionEvent.getX(), motionEvent.getY())) {
                     Global.STAGE_NAME = s.getText();
+                    Global.BLUETOOTH_DATA.write(s.getText().getBytes());
                     terminate("StageScene");
                 }
             }
@@ -39,12 +47,22 @@ public class StageSelectScene implements Scene {
 
     @Override
     public void receiveBack() {
-        terminate("CharacterSelectScene");
+        if (Global.BLUETOOTH_DATA == null) {
+            terminate("CharacterSelectScene");
+        }
     }
 
     @Override
     public void reset() {
         bg = new DankButton(new RectF(0, 0, Global.SCREEN_WIDTH, Global.SCREEN_HEIGHT));
+        bg.setRectARGB(255, 0, 0, 0);
+
+        wait = new DankButton(
+                new RectF(0, 0, Global.SCREEN_WIDTH, Global.SCREEN_HEIGHT),
+                "waiting");
+        wait.setTextSize(Global.SCREEN_HEIGHT/2);
+        wait.setTextARGB(255, 255, 255, 255);
+        wait.setRectARGB(100, 255, 0, 0);
 
         stages.add(new DankButton("LastJourneyEnd"));
 
@@ -60,10 +78,20 @@ public class StageSelectScene implements Scene {
             stages.get(i).setPulse(100);
             stages.get(i).setRectARGB(150, 60, 60, 60);
         }
+
+        if (Global.BLUETOOTH_DATA != null) {
+            Global.BLUETOOTH_DATA.write("StageSelectScene".getBytes());
+        }
     }
 
     @Override
     public void update() {
+        if (Global.BLUETOOTH_DATA != null) {
+            waiting = !new String(Global.BLUETOOTH_DATA.buffer).equals("CharacterSelectScene");
+        }
+        if (waiting) {
+            wait.dankRectUpdate();
+        }
         for (DankButton s : stages) {
             s.dankTextUpdate();
         }

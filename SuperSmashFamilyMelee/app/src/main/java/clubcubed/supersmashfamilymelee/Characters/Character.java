@@ -10,6 +10,7 @@ public interface Character {
     void collide(RectF rectF, String type);
     void hit(RectF rectF, int attackDag);
     void receiveInput(float[] inputs);
+    void receiveBluetooth(byte[] bytes);
     void draw(Canvas canvas);
     void update();
 

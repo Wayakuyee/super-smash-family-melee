@@ -2,17 +2,17 @@ package clubcubed.supersmashfamilymelee.BluetoothStuff;
 
 import android.bluetooth.BluetoothServerSocket;
 
+import java.io.IOException;
+
 import clubcubed.supersmashfamilymelee.Global;
 
 public class BluetoothServer extends Thread {
-    private boolean connect;
     private BluetoothServerSocket bluetoothServerSocket;
 
     public BluetoothServer() {
-        connect = false;
         try {
             bluetoothServerSocket = Global.BLUETOOTH_ADAPTER.listenUsingRfcommWithServiceRecord(Global.GAME_NAME, Global.GAME_UUID);
-        } catch (Exception e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
@@ -23,14 +23,22 @@ public class BluetoothServer extends Thread {
         while (Global.BLUETOOTH_SOCKET == null) {
             try {
                 Global.BLUETOOTH_SOCKET = bluetoothServerSocket.accept();
-                connect = true;
-            } catch (Exception e) {
+            } catch (IOException e) {
                 e.printStackTrace();
             }
         }
+        try {
+            bluetoothServerSocket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
-    public boolean isConnect() {
-        return connect;
+    public void cancel() {
+        try {
+            bluetoothServerSocket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
