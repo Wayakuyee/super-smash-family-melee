@@ -4,6 +4,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
+import android.util.Log;
 import android.view.MotionEvent;
 
 import java.util.Locale;
@@ -18,8 +19,9 @@ import clubcubed.supersmashfamilymelee.Stages.LastJourneyEnd;
 import clubcubed.supersmashfamilymelee.Stages.Stage;
 
 public class StageScene implements Scene {
-    // -3 : waiting
-    // -2 : bluetooth player pause
+    // -4 : waiting loading
+    // -3 : waiting for other player
+    // -2 : other player pause
     // -1 : this player pause
     //  0 : ongoing
     //  1 : player 1 win
@@ -30,6 +32,8 @@ public class StageScene implements Scene {
     private Controller controller;
     private Character characterOne;
     private Character characterTwo;
+    private DankButton dataOne;
+    private DankButton dataTwo;
     private int endgame;
     private Stage stage;
     private DankButton pauseScreen;
@@ -42,6 +46,9 @@ public class StageScene implements Scene {
     @Override
     public void draw(Canvas canvas) {
         stage.draw(canvas);
+
+        dataOne.draw(canvas);
+        dataTwo.draw(canvas);
 
         characterTwo.draw(canvas);
         characterOne.draw(canvas);
@@ -82,7 +89,7 @@ public class StageScene implements Scene {
                             paint);
             }
         } else if (gameState < 0) {
-            if (gameState == -3) {
+            if (gameState <= -3) {
                 wait.draw(canvas);
             } else {
                 pauseScreen.draw(canvas);
@@ -92,47 +99,56 @@ public class StageScene implements Scene {
 
     @Override
     public void receiveInput(MotionEvent motionEvent) {
-        float[] temp = controller.receiveInput(motionEvent);
-        if (Global.BLUETOOTH_DATA == null) {
-            characterOne.receiveInput(temp);
-        } else {
-            if (Global.BLUETOOTH_DATA.player == 1) {
+        if (gameState >= 0){
+            float[] temp = controller.receiveInput(motionEvent);
+
+            if (Global.BLUETOOTH_DATA == null) {
                 characterOne.receiveInput(temp);
             } else {
-                characterTwo.receiveInput(temp);
+                if (Global.BLUETOOTH_DATA.player == 1) {
+                    characterOne.receiveInput(temp);
+                } else {
+                    characterTwo.receiveInput(temp);
+                }
+
+                Global.BLUETOOTH_DATA.write(
+                        String.format(Locale.CANADA,"%f;%f;%f;%f",temp[0], temp[1], temp[2], temp[3]).getBytes()
+                );
             }
-
-            Global.BLUETOOTH_DATA.write(
-                    String.format(Locale.CANADA,"%f;%f;%f;%f",temp[0], temp[1], temp[2], temp[3]).getBytes()
-            );
         }
-
     }
 
     @Override
     public void receiveBack() {
         if (gameState == 0) {
-            Global.BLUETOOTH_DATA.write("-2".getBytes());
+            if (Global.BLUETOOTH_DATA != null) {
+                Global.BLUETOOTH_DATA.write("-2".getBytes());
+            }
             gameState = -1;
         } else if (gameState == -1) {
-            Global.BLUETOOTH_DATA.write("-1".getBytes());
+            if (Global.BLUETOOTH_DATA != null) {
+                Global.BLUETOOTH_DATA.write("-1".getBytes());
+            }
             gameState = 0;
+        } else if (gameState > 0) {
+            terminate("CharacterSelectScene");
         }
     }
 
     @Override
     public void reset() {
         if (Global.BLUETOOTH_DATA != null) {
-            String temp = new String(Global.BLUETOOTH_DATA.buffer);
-            if (!Global.STAGE_NAME.equals(temp) && !"CharacterSelectScene".equals(temp)) {
-                Global.STAGE_NAME = new String(Global.BLUETOOTH_DATA.buffer);
+            gameState = -4;
+            String temp = Global.BLUETOOTH_DATA.read();
+            // ADD ON TO THIS LATER
+            if ("LastJourneyEnd".equals(temp)) {
+                Global.STAGE_NAME = temp;
             }
             Global.BLUETOOTH_DATA.write(Global.STAGE_NAME.getBytes());
+        } else {
+            gameState = 0;
+            Global.CHARACTER_TWO_NAME = "FaxMcClad";
         }
-
-//        Global.STAGE_NAME = "a";
-//        Global.CHARACTER_ONE_NAME = "a";
-        Global.CHARACTER_TWO_NAME = "a";
 
         paint = new Paint();
         paint.setColor(Color.WHITE);
@@ -149,7 +165,7 @@ public class StageScene implements Scene {
                 new RectF(0, 0, Global.SCREEN_WIDTH, Global.SCREEN_HEIGHT),
                 "waiting");
         wait.setTextSize(Global.SCREEN_HEIGHT/2);
-        wait.setTextARGB(255, 255, 255, 255);
+        wait.setTextARGB(255, 0, 255, 0);
         wait.setRectARGB(100, 255, 0, 0);
 
         switch (Global.STAGE_NAME) {
@@ -172,7 +188,7 @@ public class StageScene implements Scene {
 
         switch (Global.CHARACTER_TWO_NAME) {
             case ("FaxMcClad"):
-                characterOne = new FaxMcClad(2);
+                characterTwo = new FaxMcClad(2);
                 break;
             default:
                 characterTwo = new FaxMcClad(2);
@@ -180,20 +196,34 @@ public class StageScene implements Scene {
         }
 
         controller = new Controller();
-        gameState = -3;
         endgame = 0;
 
-        if (Global.BLUETOOTH_DATA != null) {
-            Global.BLUETOOTH_DATA.write("StageScene".getBytes());
-        }
+        dataOne = new DankButton(
+                new RectF(3*Global.SCREEN_WIDTH/8 - Global.SCREEN_HEIGHT/10, 4*Global.SCREEN_HEIGHT/5, 3*Global.SCREEN_WIDTH/8 + Global.SCREEN_HEIGHT/10, Global.SCREEN_HEIGHT),
+                "0"
+        );
+        dataOne.setRectARGB(0, 0, 0, 0);
+        dataOne.setTextARGB(255, 255, 255, 255);
+        dataOne.setTextSize(Global.SCREEN_HEIGHT/5);
+
+        dataTwo = new DankButton(
+                new RectF(5*Global.SCREEN_WIDTH/8 - Global.SCREEN_HEIGHT/10, 4*Global.SCREEN_HEIGHT/5, 5*Global.SCREEN_WIDTH/8 + Global.SCREEN_HEIGHT/10, Global.SCREEN_HEIGHT),
+                "0"
+        );
+        dataTwo.setRectARGB(0, 0, 0, 0);
+        dataTwo.setTextARGB(255, 255, 255, 255);
+        dataTwo.setTextSize(Global.SCREEN_HEIGHT/5);
     }
 
     @Override
     public void update() {
+        Log.d("statee", Global.BLUETOOTH_DATA.read());
+        Log.d("statee", String.valueOf(Global.BLUETOOTH_DATA.read().equals(Global.STAGE_NAME)));
+
         if (Global.BLUETOOTH_DATA != null && Global.BLUETOOTH_DATA.bytes == 2) {
-            if ("-2".equals(new String(Global.BLUETOOTH_DATA.buffer))) {
+            if ("-2".equals(Global.BLUETOOTH_DATA.read())) {
                 gameState = -2;
-            } else if ("-1".equals(new String(Global.BLUETOOTH_DATA.buffer))) {
+            } else if ("-1".equals(Global.BLUETOOTH_DATA.read())) {
                 gameState = 0;
             }
         }
@@ -202,13 +232,19 @@ public class StageScene implements Scene {
             if (Global.BLUETOOTH_DATA != null && Global.BLUETOOTH_DATA.bytes > 6) {
                 // big enough to be input data
                 if (Global.BLUETOOTH_DATA.player == 1) {
-                    characterTwo.receiveBluetooth(Global.BLUETOOTH_DATA.buffer);
+                    characterTwo.receiveBluetooth(Global.BLUETOOTH_DATA.read().split(";"));
                 } else {
-                    characterOne.receiveBluetooth(Global.BLUETOOTH_DATA.buffer);
+                    characterOne.receiveBluetooth(Global.BLUETOOTH_DATA.read().split(";"));
                 }
             }
             characterTwo.update();
             characterOne.update();
+
+            dataOne.setText(String.valueOf(characterOne.getStock()));
+            dataOne.setRectPercent(characterOne.getPercent());
+
+            dataTwo.setText(String.valueOf(characterTwo.getStock()));
+            dataTwo.setRectPercent(characterTwo.getPercent());
 
             // check blastzone
             for (RectF rectF : stage.getBlastntZone()) {
@@ -253,9 +289,18 @@ public class StageScene implements Scene {
                 gameState = 2;
             }
         } else if (gameState < 0) {
-            if (gameState == -3) {
+            if (gameState == -4) {
+                Log.d("statee", "asdfadf");
                 wait.dankRectUpdate();
-                if (new String(Global.BLUETOOTH_DATA.buffer).equals("StageScene")) {
+                wait.dankTextUpdate();
+                if (Global.BLUETOOTH_DATA.read().equals(Global.STAGE_NAME)) {
+                    Global.BLUETOOTH_DATA.write("StageScene".getBytes());
+                    gameState = -3;
+                }
+            } else if (gameState == -3) {
+                Log.d("statee", "asdfasdfasddfadfas");
+                wait.dankRectUpdate();
+                if (Global.BLUETOOTH_DATA.read().equals("StageScene")) {
                     gameState = 0;
                 }
             } else {

@@ -3,6 +3,7 @@ package clubcubed.supersmashfamilymelee.Scenes;
 import android.bluetooth.BluetoothDevice;
 import android.graphics.Canvas;
 import android.graphics.RectF;
+import android.util.Log;
 import android.view.MotionEvent;
 
 import java.util.HashMap;
@@ -38,7 +39,7 @@ public class GameMenuScene implements Scene {
     // 0 : no rainbow
     // 1 : host button rainbow
     // 2 : connect button rainbow
-    private float dankState;
+    private int dankState;
 
     public GameMenuScene() {
         reset();
@@ -69,6 +70,7 @@ public class GameMenuScene implements Scene {
     @Override
     public void receiveInput(MotionEvent motionEvent) {
         if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
+            yPosition = motionEvent.getY();
             // showing paired devices
             if (showDevices) {
                 BluetoothDevice device = null;
@@ -82,7 +84,7 @@ public class GameMenuScene implements Scene {
                     }
                     if (device != null) {
                         bluetoothClient = new BluetoothClient(device);
-                        bluetoothClient.run();
+                        bluetoothClient.start();
                         showDevices = false;
                         break;
                     }
@@ -112,7 +114,7 @@ public class GameMenuScene implements Scene {
                     }
                     bluetoothClient = null;
                     bluetoothServer = new BluetoothServer();
-                    bluetoothServer.run();
+                    bluetoothServer.start();
 
                 } else if (checkBluetooth == -1 && connect.collide(motionEvent.getX(), motionEvent.getY())) {
                     // show paired devices menu
@@ -154,7 +156,7 @@ public class GameMenuScene implements Scene {
 
                 }
             }
-        } else if (showDevices && motionEvent.getAction() == MotionEvent.ACTION_SCROLL) {
+        } else if (showDevices && motionEvent.getAction() == MotionEvent.ACTION_MOVE) {
             // scroll pojers
             float yDistance = motionEvent.getY() - yPosition;
             yPosition = motionEvent.getY();
@@ -183,8 +185,6 @@ public class GameMenuScene implements Scene {
 
     @Override
     public void reset() {
-        dankState = 0;
-
         showDevices = false;
         checkBluetooth = 0;
 
@@ -226,6 +226,11 @@ public class GameMenuScene implements Scene {
         connect.setTextARGB(255, 255, 255, 255);
         connect.setTextSize(h);
         connect.setPulse(10);
+
+        if (Global.BLUETOOTH_DATA != null) {
+            dankState = Global.BLUETOOTH_DATA.player;
+            Global.BLUETOOTH_DATA.write("GameMenuScene".getBytes());
+        }
     }
 
     @Override
@@ -253,22 +258,24 @@ public class GameMenuScene implements Scene {
         }
 
         if (checkBluetooth != 1 && Global.BLUETOOTH_SOCKET != null && Global.BLUETOOTH_SOCKET.isConnected()) {
+            Log.d("asdf", String.format("%d, %b, %b", checkBluetooth, Global.BLUETOOTH_SOCKET!=null, Global.BLUETOOTH_SOCKET.isConnected()));
+
             if (Global.BLUETOOTH_DATA == null) {
                 Global.BLUETOOTH_DATA = new BluetoothData();
+                Global.BLUETOOTH_DATA.start();
             }
+
+            Global.BLUETOOTH_DATA.write("GameMenuScene".getBytes());
+
             if (dankState == 1) {
-            // if (bluetoothServer != null) {
-                Global.BLUETOOTH_DATA.player = 1;
-                bluetoothServer = null;
                 bluetooth.setText("Connected (P1)");
-            } else if (dankState == 2) {
-            // } else if (bluetoothClient != null) {
-                Global.BLUETOOTH_DATA.player = 2;
-                bluetoothClient = null;
-                bluetooth.setText("Connected (P2)");
             } else {
-                bluetooth.setText("Connected");
+                bluetooth.setText("Connected (P2)");
             }
+
+            Global.BLUETOOTH_DATA.player = dankState;
+            bluetoothServer = null;
+            bluetoothClient = null;
             checkBluetooth = 1;
             dankState = 0;
         }

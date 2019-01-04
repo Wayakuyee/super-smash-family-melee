@@ -7,17 +7,15 @@ import java.io.IOException;
 import clubcubed.supersmashfamilymelee.Global;
 
 public class BluetoothClient extends Thread {
-    private BluetoothDevice bluetoothDevice;
     public BluetoothClient(BluetoothDevice bluetoothDevice) {
-        this.bluetoothDevice = bluetoothDevice;
-
         try {
-            Global.BLUETOOTH_SOCKET = this.bluetoothDevice.createRfcommSocketToServiceRecord(Global.GAME_UUID);
+            Global.BLUETOOTH_SOCKET = bluetoothDevice.createRfcommSocketToServiceRecord(Global.GAME_UUID);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
+    @Override
     public void run() {
         try {
             Global.BLUETOOTH_SOCKET.connect();

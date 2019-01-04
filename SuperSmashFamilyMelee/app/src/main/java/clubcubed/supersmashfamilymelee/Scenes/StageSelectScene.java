@@ -34,11 +34,13 @@ public class StageSelectScene implements Scene {
 
     @Override
     public void receiveInput(MotionEvent motionEvent) {
-        if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
+        if (motionEvent.getAction() == MotionEvent.ACTION_DOWN && !waiting) {
             for (DankButton s : stages) {
                 if (s.collide(motionEvent.getX(), motionEvent.getY())) {
                     Global.STAGE_NAME = s.getText();
-                    Global.BLUETOOTH_DATA.write(s.getText().getBytes());
+                    if (Global.BLUETOOTH_DATA != null) {
+                        Global.BLUETOOTH_DATA.write(s.getText().getBytes());
+                    }
                     terminate("StageScene");
                 }
             }
@@ -47,7 +49,7 @@ public class StageSelectScene implements Scene {
 
     @Override
     public void receiveBack() {
-        if (Global.BLUETOOTH_DATA == null) {
+        if (waiting || Global.BLUETOOTH_DATA == null) {
             terminate("CharacterSelectScene");
         }
     }
@@ -79,19 +81,34 @@ public class StageSelectScene implements Scene {
             stages.get(i).setRectARGB(150, 60, 60, 60);
         }
 
-        if (Global.BLUETOOTH_DATA != null) {
-            Global.BLUETOOTH_DATA.write("StageSelectScene".getBytes());
-        }
+        waiting = Global.BLUETOOTH_DATA != null;
     }
 
     @Override
     public void update() {
         if (Global.BLUETOOTH_DATA != null) {
-            waiting = !new String(Global.BLUETOOTH_DATA.buffer).equals("CharacterSelectScene");
+            switch (Global.BLUETOOTH_DATA.read()) {
+                case ("CharacterSelectScene"):
+                    waiting = true;
+                    break;
+                case ("GameMenuScene"):
+                    receiveBack();
+                    break;
+                default:
+                    waiting = false;
+                    if (Global.BLUETOOTH_DATA.player == 1) {
+                        Global.CHARACTER_TWO_NAME = Global.BLUETOOTH_DATA.read();
+                    } else {
+                        Global.CHARACTER_ONE_NAME = Global.BLUETOOTH_DATA.read();
+                    }
+                    break;
+            }
         }
+
         if (waiting) {
             wait.dankRectUpdate();
         }
+
         for (DankButton s : stages) {
             s.dankTextUpdate();
         }

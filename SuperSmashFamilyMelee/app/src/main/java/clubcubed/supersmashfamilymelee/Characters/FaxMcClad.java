@@ -23,7 +23,7 @@ public class FaxMcClad implements Character {
 
     private double startTime;
 
-    private float percent;
+    private int percent;
     private int stock;
     private int player;
 
@@ -52,12 +52,12 @@ public class FaxMcClad implements Character {
 
         if (player == 1) {
             // top left, 1/4 screen
-            character.left = (Global.GAME_WIDTH/2*Global.GAME_RATIO +Global.GAME_DIFFERENCE) - (width/2);
-            character.right = (Global.GAME_WIDTH/2*Global.GAME_RATIO +Global.GAME_DIFFERENCE) + (width/2);
+            character.left = (Global.GAME_WIDTH/4*Global.GAME_RATIO +Global.GAME_DIFFERENCE) - (width/2);
+            character.right = (Global.GAME_WIDTH/4*Global.GAME_RATIO +Global.GAME_DIFFERENCE) + (width/2);
         } else {
             // top right, 3/4 screen
-            character.left = (Global.GAME_WIDTH/2*Global.GAME_RATIO +Global.GAME_DIFFERENCE) - (width/2);
-            character.right = (Global.GAME_WIDTH/2*Global.GAME_RATIO +Global.GAME_DIFFERENCE) + (width/2);
+            character.left = (3*Global.GAME_WIDTH/4*Global.GAME_RATIO +Global.GAME_DIFFERENCE) - (width/2);
+            character.right = (3*Global.GAME_WIDTH/4*Global.GAME_RATIO +Global.GAME_DIFFERENCE) + (width/2);
         }
 
         state = "fall";
@@ -66,7 +66,7 @@ public class FaxMcClad implements Character {
         startTime = 0f;
         attackDag = 0;
         attackDagMax = 0;
-        percent = 0f;
+        percent = 0;
     }
 
     private void die() {
@@ -211,6 +211,11 @@ public class FaxMcClad implements Character {
     }
 
     @Override
+    public int getPercent() {
+        return percent;
+    }
+
+    @Override
     public void collide(RectF rectF, String type) {
         if (type.equals("blastntZone") && !RectF.intersects(rectF, character)) {
             die();
@@ -258,13 +263,12 @@ public class FaxMcClad implements Character {
     }
 
     @Override
-    public void receiveBluetooth(byte[] bytes) {
-        String[] temp = new String(bytes).split(";");
+    public void receiveBluetooth(String[] inputs) {
         this.inputs = new float[]{
-                Float.parseFloat(temp[0]),
-                Float.parseFloat(temp[1]),
-                Float.parseFloat(temp[2]),
-                Float.parseFloat(temp[3])};
+                Float.parseFloat(inputs[0]),
+                Float.parseFloat(inputs[1]),
+                Float.parseFloat(inputs[2]),
+                Float.parseFloat(inputs[3])};
     }
 
     @Override

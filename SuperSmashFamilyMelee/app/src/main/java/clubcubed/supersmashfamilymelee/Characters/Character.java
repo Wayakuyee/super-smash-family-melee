@@ -7,10 +7,11 @@ public interface Character {
     int getAttackDag();
     RectF getCharacter();
     int getStock();
+    int getPercent();
     void collide(RectF rectF, String type);
     void hit(RectF rectF, int attackDag);
     void receiveInput(float[] inputs);
-    void receiveBluetooth(byte[] bytes);
+    void receiveBluetooth(String[] inputs);
     void draw(Canvas canvas);
     void update();
 

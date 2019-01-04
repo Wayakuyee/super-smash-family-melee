@@ -34,12 +34,19 @@ public class CharacterSelectScene implements Scene {
 
     @Override
     public void receiveInput(MotionEvent motionEvent) {
-        if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
+        if (motionEvent.getAction() == MotionEvent.ACTION_DOWN && !waiting) {
             for (DankButton c : characters) {
                 if (c.collide(motionEvent.getX(), motionEvent.getY())) {
-                    Global.CHARACTER_ONE_NAME = c.getText();
+
                     if (Global.BLUETOOTH_DATA != null) {
+                        if (Global.BLUETOOTH_DATA.player == 1) {
+                            Global.CHARACTER_ONE_NAME = c.getText();
+                        } else {
+                            Global.CHARACTER_TWO_NAME = c.getText();
+                        }
                         Global.BLUETOOTH_DATA.write(c.getText().getBytes());
+                    } else {
+                        Global.CHARACTER_ONE_NAME = c.getText();
                     }
                     terminate("StageSelectScene");
                 }
@@ -49,9 +56,7 @@ public class CharacterSelectScene implements Scene {
 
     @Override
     public void receiveBack() {
-        if (Global.BLUETOOTH_DATA == null) {
-            terminate("GameMenuScene");
-        }
+        terminate("GameMenuScene");
     }
 
     @Override
@@ -83,18 +88,31 @@ public class CharacterSelectScene implements Scene {
 
         if (Global.BLUETOOTH_DATA != null) {
             Global.BLUETOOTH_DATA.write("CharacterSelectScene".getBytes());
+            waiting = true;
+        } else {
+            waiting = false;
         }
     }
 
     @Override
     public void update() {
         if (Global.BLUETOOTH_DATA != null) {
-            waiting = new String(Global.BLUETOOTH_DATA.buffer).equals("CharacterSelectScene");
+            switch (Global.BLUETOOTH_DATA.read()) {
+                case ("GameMenuScene"):
+                    waiting = true;
+                    break;
+                case ("CharacterSelectScene"):
+                    waiting = false;
+                    break;
+                default:
+                    waiting = false;
+            }
         }
 
         if (waiting) {
             wait.dankRectUpdate();
         }
+
         for (DankButton c : characters) {
             c.dankTextUpdate();
         }

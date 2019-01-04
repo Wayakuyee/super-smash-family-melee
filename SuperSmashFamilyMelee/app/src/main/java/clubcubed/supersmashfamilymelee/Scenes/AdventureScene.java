@@ -41,7 +41,7 @@ public class AdventureScene implements Scene {
 
         if (Global.BLUETOOTH_DATA != null) {
             Global.BLUETOOTH_DATA.write("AdventureScene".getBytes());
-            if (new String(Global.BLUETOOTH_DATA.buffer).equals("CharacterSelectScene")) {
+            if (Global.BLUETOOTH_DATA.read().equals("CharacterSelectScene")) {
                 terminate("CharacterSelectScene");
             }
         }

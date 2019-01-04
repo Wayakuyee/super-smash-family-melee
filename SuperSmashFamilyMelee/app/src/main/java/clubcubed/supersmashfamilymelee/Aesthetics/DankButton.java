@@ -85,6 +85,49 @@ public class DankButton {
         pulseSize = size;
     }
 
+    public void setRectPercent(int percent) {
+        if (percent <= 510) {
+            rARGB[0] = (int)Math.round(0.5 * percent);
+            rARGB[1] = (int)Math.round(0.5 * percent);
+        } else {
+            rARGB[0] = 255;
+            rARGB[1] = 255;
+        }
+
+        rectPaint.setARGB(rARGB[0], rARGB[1], rARGB[2], rARGB[3]);
+    }
+
+    public void setTextPercent(int percent) {
+        if (percent <= 255) {
+            tARGB[0] = 255;
+            tARGB[1] = percent;
+            tARGB[2] = 0;
+            tARGB[3] = 0;
+        } else if (percent <= 510) {
+            tARGB[0] = 255;
+            tARGB[1] = 255;
+            tARGB[2] = percent - 255;
+            tARGB[3] = 0;
+        } else if (percent <= 765){
+            tARGB[0] = 255;
+            tARGB[1] = 255;
+            tARGB[2] = 255;
+            tARGB[3] = percent - 510;
+        } else if (percent <= 1020){
+            tARGB[0] = 1020 - percent;
+            tARGB[1] = 255;
+            tARGB[2] = 255;
+            tARGB[3] = 255;
+        } else {
+            tARGB[0] = 0;
+            tARGB[1] = 255;
+            tARGB[2] = 255;
+            tARGB[3] = 255;
+        }
+
+        textPaint.setARGB(tARGB[0], tARGB[1], tARGB[2], tARGB[3]);
+    }
+
     public void addYPosition(float yPosition) {
         rectF.bottom += yPosition;
         rectF.top += yPosition;
