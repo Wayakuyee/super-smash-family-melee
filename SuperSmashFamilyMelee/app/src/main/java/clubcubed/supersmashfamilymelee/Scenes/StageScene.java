@@ -19,8 +19,7 @@ import clubcubed.supersmashfamilymelee.Stages.LastJourneyEnd;
 import clubcubed.supersmashfamilymelee.Stages.Stage;
 
 public class StageScene implements Scene {
-    // -4 : waiting loading
-    // -3 : waiting for other player
+    // -3 : waiting for load
     // -2 : other player pause
     // -1 : this player pause
     //  0 : ongoing

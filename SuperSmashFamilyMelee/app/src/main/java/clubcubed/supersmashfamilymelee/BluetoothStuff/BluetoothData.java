@@ -11,7 +11,7 @@ import clubcubed.supersmashfamilymelee.Global;
 public class BluetoothData extends Thread {
     public int player;
     public int bytes;
-    public byte[] buffer;
+    private byte[] buffer;
     private InputStream inputStream;
     private OutputStream outputStream;
 
