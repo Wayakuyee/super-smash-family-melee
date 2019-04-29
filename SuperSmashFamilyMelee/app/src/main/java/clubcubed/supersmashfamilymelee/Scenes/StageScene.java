@@ -19,7 +19,8 @@ import clubcubed.supersmashfamilymelee.Stages.LastJourneyEnd;
 import clubcubed.supersmashfamilymelee.Stages.Stage;
 
 public class StageScene implements Scene {
-    // -3 : waiting for load
+    // -4 : waiting loading
+    // -3 : waiting for other player
     // -2 : other player pause
     // -1 : this player pause
     //  0 : ongoing
@@ -139,7 +140,7 @@ public class StageScene implements Scene {
         if (Global.BLUETOOTH_DATA != null) {
             gameState = -4;
             String temp = Global.BLUETOOTH_DATA.read();
-            // ADD ON TO THIS LATER
+            // ADD ON more stages TO THIS LATER
             if ("LastJourneyEnd".equals(temp)) {
                 Global.STAGE_NAME = temp;
             }
