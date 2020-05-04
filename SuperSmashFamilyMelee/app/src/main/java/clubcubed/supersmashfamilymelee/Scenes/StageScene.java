@@ -217,10 +217,9 @@ public class StageScene implements Scene {
 
     @Override
     public void update() {
-        Log.d("statee", Global.BLUETOOTH_DATA.read());
-        Log.d("statee", String.valueOf(Global.BLUETOOTH_DATA.read().equals(Global.STAGE_NAME)));
-
         if (Global.BLUETOOTH_DATA != null && Global.BLUETOOTH_DATA.bytes == 2) {
+            Log.d("statee", Global.BLUETOOTH_DATA.read());
+            Log.d("statee", String.valueOf(Global.BLUETOOTH_DATA.read().equals(Global.STAGE_NAME)));
             if ("-2".equals(Global.BLUETOOTH_DATA.read())) {
                 gameState = -2;
             } else if ("-1".equals(Global.BLUETOOTH_DATA.read())) {
