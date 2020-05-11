@@ -10,7 +10,7 @@ public interface Character {
     int getPercent();
     void collide(RectF rectF, String type);
     void hit(RectF rectF, int attackDag);
-    void receiveInput(float[] inputs);
+    void receiveInput(Float[] inputs);
     void receiveBluetooth(String[] inputs);
     void draw(Canvas canvas);
     void update();

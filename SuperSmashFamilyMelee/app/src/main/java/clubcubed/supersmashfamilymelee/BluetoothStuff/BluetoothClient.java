@@ -23,4 +23,14 @@ public class BluetoothClient extends Thread {
             e.printStackTrace();
         }
     }
+
+    public void cancel() {
+        try {
+            if (Global.BLUETOOTH_SOCKET != null)
+                Global.BLUETOOTH_SOCKET.close();
+            Global.BLUETOOTH_SOCKET = null;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }

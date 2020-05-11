@@ -1,18 +1,29 @@
 package clubcubed.supersmashfamilymelee.Scenes;
 
 import android.graphics.Canvas;
+import android.graphics.RectF;
 import android.view.MotionEvent;
 
+import clubcubed.supersmashfamilymelee.Aesthetics.DankButton;
 import clubcubed.supersmashfamilymelee.Global;
 
 public class OptionScene implements Scene {
-    public OptionScene() {
+    private DankButton bg;
 
+    public OptionScene() {
+        // TODO: add content
+        bg = new DankButton(
+                new RectF(0, 0, Global.SCREEN_WIDTH, Global.SCREEN_HEIGHT),
+                "uhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh"
+        );
+        bg.setTextSize(Global.SCREEN_HEIGHT/2);
+        bg.setTextARGB(255, 255, 255, 255);
+        bg.setRectARGB(255, 100, 100, 0);
     }
 
     @Override
     public void draw(Canvas canvas) {
-
+        bg.draw(canvas);
     }
 
     @Override
@@ -22,12 +33,7 @@ public class OptionScene implements Scene {
 
     @Override
     public void receiveBack() {
-
-    }
-
-    @Override
-    public void reset() {
-
+        terminate(Global.SCENE_NAME.GAME_MENU_SCENE);
     }
 
     @Override
@@ -35,7 +41,9 @@ public class OptionScene implements Scene {
 
     }
 
-    private void terminate(String sceneName) {
-        Global.SCENE_NAME = sceneName;
+    private void terminate(Global.SCENE_NAME sceneName) {
+        Global.CURRENT_SCENE = sceneName;
+        if (Global.BLUETOOTH_DATA != null && Global.BLUETOOTH_DATA.isConnected())
+            Global.BLUETOOTH_DATA.write("scene" + sceneName.name());
     }
 }

@@ -20,7 +20,6 @@ public class BluetoothServer extends Thread {
     @Override
     public void run() {
         Global.BLUETOOTH_SOCKET = null;
-
         while (Global.BLUETOOTH_SOCKET == null) {
             try {
                 Global.BLUETOOTH_SOCKET = bluetoothServerSocket.accept();
@@ -28,6 +27,8 @@ public class BluetoothServer extends Thread {
                 e.printStackTrace();
             }
         }
+
+        // cancel discovery when connection found
         try {
             Global.BLUETOOTH_ADAPTER.cancelDiscovery();
             bluetoothServerSocket.close();
@@ -38,7 +39,11 @@ public class BluetoothServer extends Thread {
 
     public void cancel() {
         try {
-            bluetoothServerSocket.close();
+            if (bluetoothServerSocket != null)
+                bluetoothServerSocket.close();
+            if (Global.BLUETOOTH_SOCKET != null)
+                Global.BLUETOOTH_SOCKET.close();
+            Global.BLUETOOTH_SOCKET = null;
         } catch (IOException e) {
             e.printStackTrace();
         }

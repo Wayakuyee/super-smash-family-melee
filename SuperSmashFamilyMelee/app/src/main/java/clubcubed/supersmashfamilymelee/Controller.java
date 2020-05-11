@@ -7,6 +7,10 @@ import android.graphics.RectF;
 import android.util.Log;
 import android.view.MotionEvent;
 
+import java.text.DecimalFormat;
+import java.util.Locale;
+import java.util.Stack;
+
 public class Controller {
     private RectF stickArea;
     private RectF stick;
@@ -27,9 +31,10 @@ public class Controller {
 
     private float buttonSize;
 
-    private float[] inputs = new float[4];
+    private Float[] inputs;
+    private Stack<Float[]> inputsBuffer;
 
-    public Controller() {
+    public Controller(int buffer) {
         buttonSize = (Global.SCREEN_WIDTH < Global.SCREEN_HEIGHT) ? (Global.SCREEN_WIDTH/2) : (Global.SCREEN_HEIGHT/2);
         stick = new RectF();
         stickArea = new RectF(0, buttonSize, buttonSize, buttonSize*2);
@@ -57,6 +62,10 @@ public class Controller {
         xSum = stickArea.right + stickArea.left;
         yDif = stickArea.top - stickArea.bottom;
         ySum = stickArea.top + stickArea.bottom;
+
+        inputsBuffer = new Stack<>();
+        for (; buffer>0; buffer--)
+            inputsBuffer.push(new Float[]{0f, 0f, 0f, 0f});
     }
 
     /**
@@ -71,18 +80,16 @@ public class Controller {
         stick.bottom = y+buttonSize;
     }
 
-    public float[] receiveInput(MotionEvent motionEvent) {
+    public void receiveInput(MotionEvent motionEvent) {
         // x; y; jump button; attack button
-        inputs = new float[]{0f, 0f, 0f, 0f};
+        inputs = new Float[]{0f, 0f, 0f, 0f};
 
         for (int i=0; i<motionEvent.getPointerCount(); i++) {
-
             if (motionEvent.getActionIndex()!=i || (motionEvent.getActionMasked()!=MotionEvent.ACTION_UP && motionEvent.getActionMasked()!=MotionEvent.ACTION_POINTER_UP)) {
-
                 if (stickArea.contains(motionEvent.getX(i), motionEvent.getY(i))) {
                     // move
-                    inputs[0] = (2 * motionEvent.getX(i) - xSum) / (xDif);
-                    inputs[1] = (2 * motionEvent.getY(i) - ySum) / (yDif);
+                    inputs[0] = Float.valueOf(String.format(Locale.CANADA, "%.6f", (2 * motionEvent.getX(i) - xSum) / (xDif)));
+                    inputs[1] = Float.valueOf(String.format(Locale.CANADA, "%.6f", (2 * motionEvent.getY(i) - ySum) / (yDif)));
                     moveStick(motionEvent.getX(i), motionEvent.getY(i));
                 } else if (jump.contains(motionEvent.getX(i), motionEvent.getY(i))) {
                     // jump
@@ -93,29 +100,33 @@ public class Controller {
                 }
             }
         }
+    }
 
-        if (inputs[0]==0f && inputs[1]==0f) {
-            moveStick(stickArea.centerX(), stickArea.centerY());
-        }
-
-        Log.d("Controller", String.format("%f, %f, %f, %f", inputs[0], inputs[1], inputs[2], inputs[3]));
-        return inputs;
+    public Float[] getInputs() {
+        return inputsBuffer.pop();
     }
 
     public void draw(Canvas canvas) {
-        if (inputs[2] > 0f) {
+        // TODO: test if this is laggy
+        // Float[] current = inputsBuffer.peek();
+        Float[] current = inputs;
+
+        if (current[0]==0f && current[1]==0f)
+            moveStick(stickArea.centerX(), stickArea.centerY());
+
+        if (current[2] > 0f) {
             canvas.drawRect(jump, jumpDownPaint);
         } else {
             canvas.drawRect(jump, jumpPaint);
         }
 
-        if (inputs[3] > 0f) {
+        if (current[3] > 0f) {
             canvas.drawRect(attack, attackDownPaint);
         } else {
             canvas.drawRect(attack, attackPaint);
         }
 
-        if (inputs[0]==0f && inputs[1]==0f) {
+        if (current[0]==0f && current[1]==0f) {
             canvas.drawOval(stick, stickPaint);
         } else {
             canvas.drawOval(stick, stickDownPaint);
@@ -123,6 +134,6 @@ public class Controller {
     }
 
     public void update() {
-
+        inputsBuffer.push(inputs);
     }
 }

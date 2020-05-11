@@ -11,7 +11,7 @@ public class FaxMcClad implements Character {
     private RectF character;
     private Paint characterPaint;
 
-    private float[] inputs;
+    private Float[] inputs;
 
     // attack dag means attack damage and lag
     private int attackDag;
@@ -30,7 +30,7 @@ public class FaxMcClad implements Character {
     private double c = 60.0/1000;
 
     public FaxMcClad(int player) {
-        inputs = new float[]{0f, 0f, 0f, 0f};
+        inputs = new Float[]{0f, 0f, 0f, 0f};
 
         character = new RectF(0, 0, 50*Global.GAME_RATIO, 100*Global.GAME_RATIO);
         this.player = player;
@@ -258,13 +258,13 @@ public class FaxMcClad implements Character {
     }
 
     @Override
-    public void receiveInput(float[] inputs) {
+    public void receiveInput(Float[] inputs) {
         this.inputs = inputs;
     }
 
     @Override
     public void receiveBluetooth(String[] inputs) {
-        this.inputs = new float[]{
+        this.inputs = new Float[]{
                 Float.parseFloat(inputs[0]),
                 Float.parseFloat(inputs[1]),
                 Float.parseFloat(inputs[2]),
