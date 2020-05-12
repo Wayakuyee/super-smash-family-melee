@@ -229,13 +229,11 @@ public class StageScene implements Scene {
     private void waitUpdate() {
         waitScreen.dankRectUpdate();
         waitScreen.dankTextUpdate();
-        exitButton.update();
     }
 
     private void pauseUpdate() {
         pauseScreen.dankRectUpdate();
         pauseScreen.pulseUpdate();
-        exitButton.update();
     }
 
     @Override

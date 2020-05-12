@@ -61,6 +61,10 @@ public class DankButton {
         this.rectF = rectF;
     }
 
+    public void setPosition(float left, float top, float right, float bottom) {
+        rectF.set(left, top, right, bottom);
+    }
+
     public void setText(String newText) {
         text = newText;
     }
@@ -129,24 +133,20 @@ public class DankButton {
         rectF.top += yPosition;
     }
 
-    public String getText() {
-        return text;
-    }
-
     public void draw(Canvas canvas) {
         canvas.drawRect(rectF, rectPaint);
 
         if (!text.equals("")) {
-            Rect temp = new Rect();
-            textPaint.getTextBounds(text, 0, text.length(), temp);
-            float x = (rectF.width()/2+rectF.left) - (temp.width()/2f);
-            float y = (rectF.height()/2+rectF.top) + (temp.height()/2f);
-            canvas.drawText(text, x, y, textPaint);
+            // thanks to VinceStyling, found at
+            // https://stackoverflow.com/a/21951682/9069307
+            textPaint.isAntiAlias();
+            RectF temp = new RectF(rectF);
+            temp.right = textPaint.measureText(text, 0, text.length());
+            temp.bottom = textPaint.descent() - textPaint.ascent();
+            temp.left += (rectF.width() - temp.right) / 2.0f;
+            temp.top += (rectF.height() - temp.bottom) / 2.0f;
+            canvas.drawText(text, temp.left, temp.top - textPaint.ascent(), textPaint);
         }
-    }
-
-    public void update() {
-
     }
 
     public void pulseUpdate() {

@@ -5,10 +5,12 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
 
+import clubcubed.supersmashfamilymelee.Aesthetics.DankButton;
 import clubcubed.supersmashfamilymelee.Global;
 import clubcubed.supersmashfamilymelee.Stages.Stage;
 
 public class Shraek extends Character {
+    private DankButton indicator;
     private RectF character;
     private Paint characterPaint;
     private RectF characterTop;
@@ -58,6 +60,11 @@ public class Shraek extends Character {
         characterBot = new RectF();
         characterBotPaint = new Paint();
         characterBotPaint.setColor(Color.argb(200, 230, 255, 230));
+
+        indicator = new DankButton(String.valueOf(getPlayer()));
+        indicator.setRectARGB(0, 0, 0, 0);
+        indicator.setTextSize(character.height()/3);
+        indicator.setTextARGB(255, 255, 255, 255);
 
         stock = 4;
         c = 60.0/1000;
@@ -128,7 +135,7 @@ public class Shraek extends Character {
     }
 
     private void upAttack() {
-        move(0, -20*Global.GAME_RATIO);
+        move(0, -80*Global.GAME_RATIO);
         characterTopPaint.setColor(Color.argb(200, 255,0,0));
         attackState = 1;
         attackDag = 60;
@@ -180,6 +187,8 @@ public class Shraek extends Character {
                 character.right, character.top + h);
         characterBot.set(character.left, character.top + h,
                 character.right, character.bottom);
+
+        indicator.setPosition(character.left, character.top, character.right, character.bottom);
     }
 
     private void action() {
@@ -325,6 +334,8 @@ public class Shraek extends Character {
 
         if (attackDag > 0)
             canvas.drawRect(character, characterPaint);
+
+        indicator.draw(canvas);
     }
 
     @Override

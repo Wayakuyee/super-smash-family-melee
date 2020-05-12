@@ -5,10 +5,12 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
 
+import clubcubed.supersmashfamilymelee.Aesthetics.DankButton;
 import clubcubed.supersmashfamilymelee.Global;
 import clubcubed.supersmashfamilymelee.Stages.Stage;
 
 public class FaxMcClad extends Character {
+    private DankButton indicator;
     private RectF character;
     private Paint characterPaint;
 
@@ -37,6 +39,10 @@ public class FaxMcClad extends Character {
         inputs = new Float[]{0f, 0f, 0f, 0f};
 
         character = new RectF(0, 0, 50*Global.GAME_RATIO, 100*Global.GAME_RATIO);
+        indicator = new DankButton(String.valueOf(getPlayer()));
+        indicator.setRectARGB(0, 0, 0, 0);
+        indicator.setTextSize(character.height()/3);
+        indicator.setTextARGB(255, 255, 255, 255);
 
         characterPaint = new Paint();
         characterPaint.setColor(Color.argb(200 , 255,140,0));
@@ -55,6 +61,7 @@ public class FaxMcClad extends Character {
 
         character.top = 0;
         character.bottom = height;
+        move(0, 0);
 
         if (getPlayer() == 1) {
             // top left, 1/4 screen
@@ -106,7 +113,7 @@ public class FaxMcClad extends Character {
     }
 
     private void upAttack() {
-        move(0, -50*Global.GAME_RATIO);
+        move(0, -150*Global.GAME_RATIO);
         characterPaint.setColor(Color.argb(200, 255,0,0));
         attackDag = 120;
         attackDagMax = 120;
@@ -123,16 +130,16 @@ public class FaxMcClad extends Character {
     private void leftAttack() {
         move(-50*Global.GAME_RATIO, 0);
         characterPaint.setColor(Color.argb(200, 0,0,255));
-        attackDag = 60;
-        attackDagMax = 60;
+        attackDag = 40;
+        attackDagMax = 40;
         startTime = System.currentTimeMillis();
     }
 
     private void rightAttack() {
         move(50*Global.GAME_RATIO, 0);
         characterPaint.setColor(Color.argb(200, 0,0,255));
-        attackDag = 60;
-        attackDagMax = 60;
+        attackDag = 40;
+        attackDagMax = 40;
         startTime = System.currentTimeMillis();
     }
 
@@ -142,6 +149,8 @@ public class FaxMcClad extends Character {
         character.bottom += y;
         character.left += x;
         character.right += x;
+
+        indicator.setPosition(character.left, character.top, character.right, character.bottom);
     }
 
     private void action() {
@@ -280,6 +289,7 @@ public class FaxMcClad extends Character {
     @Override
     public void draw(Canvas canvas) {
         canvas.drawRect(character, characterPaint);
+        indicator.draw(canvas);
     }
 
     @Override
