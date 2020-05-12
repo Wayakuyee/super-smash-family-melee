@@ -3,7 +3,6 @@ package clubcubed.supersmashfamilymelee.Scenes;
 import android.bluetooth.BluetoothDevice;
 import android.graphics.Canvas;
 import android.graphics.RectF;
-import android.util.Log;
 import android.view.MotionEvent;
 
 import java.util.HashMap;
@@ -25,24 +24,69 @@ public class GameMenuScene implements Scene {
     private HashMap<DankButton[], BluetoothDevice> devices;
     private boolean showDevices;
 
-    // -1 : hosting or connecting
-    //  0 : unchecked, might be null
-    //  1 : checked, success
-    private int checkBluetooth;
-
+    // -1 : no bluetooth
+    //  0 : no opponent
+    //  1 : opponent is hosting - we are client
+    //  2 : opponent is client  - we are hosting
+    //  3 : opponent connected
+    private short opponentPlayer;
+    private boolean chooseHostConnect;
     private BluetoothServer bluetoothServer;
     private BluetoothClient bluetoothClient;
 
     // for scrolling
     private float yPosition;
 
-    // 0 : no rainbow
-    // 1 : host button rainbow
-    // 2 : connect button rainbow
-    private int dankState;
-
     public GameMenuScene() {
-        reset();
+        bg = new DankButton(new RectF(0, 0, Global.SCREEN_WIDTH, Global.SCREEN_HEIGHT));
+        bg.setRectARGB(150, 0, 255, 0);
+
+        float w = Global.SCREEN_WIDTH/4;
+        float h = Global.SCREEN_HEIGHT/10;
+
+        adventure = new DankButton(new RectF(w, h, 3*w, 3*h),"Adventure Mode");
+        adventure.setRectARGB(255, 200, 150, 0);
+        adventure.setTextARGB(255, 255, 255, 255);
+        adventure.setTextSize(h);
+        adventure.setPulse(10);
+
+        melee = new DankButton(new RectF(w, 4*h, 3*w, 6*h),"Melee");
+        melee.setRectARGB(255, 255, 100, 0);
+        melee.setTextARGB(255, 255, 255, 255);
+        melee.setTextSize(h);
+        melee.setPulse(10);
+
+        bluetooth = new DankButton(new RectF(w, 7*h, 3*w, 9*h),"Enable Bluetooth");
+        bluetooth.setRectARGB(255, 0, 100, 255);
+        bluetooth.setTextARGB(255, 255, 255, 255);
+        bluetooth.setTextSize(h);
+        bluetooth.setPulse(10);
+
+        host = new DankButton(new RectF(w, 7*h, 47*w/24, 9*h),"Host");
+        host.setRectARGB(255, 0, 200, 50);
+        host.setTextARGB(255, 255, 255, 255);
+        host.setTextSize(h);
+        host.setPulse(10);
+
+        connect = new DankButton(new RectF(49*w/24, 7*h, 3*w, 9*h),"Connect");
+        connect.setRectARGB(255, 0, 200, 50);
+        connect.setTextARGB(255, 255, 255, 255);
+        connect.setTextSize(h);
+        connect.setPulse(10);
+
+
+        showDevices = false;
+        chooseHostConnect = false;
+        bluetoothServer = null;
+        bluetoothClient = null;
+
+        // check if bluetooth is enabled
+        if (Global.BLUETOOTH_ADAPTER != null && Global.BLUETOOTH_ADAPTER.isEnabled()) {
+            opponentPlayer = 0;
+        } else {
+            opponentPlayer = -2;
+            bluetooth.setText("Bluetooth Disabled");
+        }
     }
 
     @Override
@@ -50,19 +94,17 @@ public class GameMenuScene implements Scene {
         bg.draw(canvas);
 
         if (showDevices) {
-            for (DankButton[] dankButtons : devices.keySet()) {
-                for (DankButton dankButton : dankButtons) {
+            for (DankButton[] dankButtons : devices.keySet())
+                for (DankButton dankButton : dankButtons)
                     dankButton.draw(canvas);
-                }
-            }
         } else {
             adventure.draw(canvas);
             melee.draw(canvas);
-            if (checkBluetooth >= 0) {
-                bluetooth.draw(canvas);
-            } else {
+            if (chooseHostConnect) {
                 host.draw(canvas);
                 connect.draw(canvas);
+            } else {
+                bluetooth.draw(canvas);
             }
         }
     }
@@ -92,38 +134,20 @@ public class GameMenuScene implements Scene {
             } else {
                 // other buttons
                 if (adventure.collide(motionEvent.getX(), motionEvent.getY())) {
-                    terminate("AdventureScene");
-
+                    terminate(Global.SCENE_NAME.ADVENTURE_SCENE);
                 } else if (melee.collide(motionEvent.getX(), motionEvent.getY())) {
-                    terminate("CharacterSelectScene");
-
-                } else if (checkBluetooth == 0 && bluetooth.collide(motionEvent.getX(), motionEvent.getY())) {
-                    // check if bluetooth is enabled
-                    if (Global.BLUETOOTH_ADAPTER != null && Global.BLUETOOTH_ADAPTER.isEnabled()) {
-                        checkBluetooth = -1;
-                    } else {
-                        bluetooth.setRectARGB(255, 255, 0, 0);
-                        bluetooth.setText("Bluetooth broke");
-                    }
-
-                } else if (checkBluetooth == -1 && host.collide(motionEvent.getX(), motionEvent.getY())) {
+                    terminate(Global.SCENE_NAME.CHARACTER_SELECT_SCENE);
+                } else if (opponentPlayer==0 && !chooseHostConnect
+                        && bluetooth.collide(motionEvent.getX(), motionEvent.getY())) {
+                    chooseHostConnect = true;
+                } else if (chooseHostConnect && host.collide(motionEvent.getX(), motionEvent.getY())) {
                     // hosting
-                    dankState = 1;
-                    if (bluetoothServer != null) {
-                        bluetoothServer.cancel();
-                    }
-                    bluetoothClient = null;
+                    opponentPlayer = 2;
                     bluetoothServer = new BluetoothServer();
                     bluetoothServer.start();
-
-                } else if (checkBluetooth == -1 && connect.collide(motionEvent.getX(), motionEvent.getY())) {
+                } else if (chooseHostConnect && connect.collide(motionEvent.getX(), motionEvent.getY())) {
                     // show paired devices menu
-                    dankState = 2;
-                    if (bluetoothServer != null) {
-                        bluetoothServer.cancel();
-                    }
-                    bluetoothServer = null;
-                    bluetoothClient = null;
+                    opponentPlayer = 1;
                     showDevices = true;
                     devices = new HashMap<>();
 
@@ -161,75 +185,37 @@ public class GameMenuScene implements Scene {
             float yDistance = motionEvent.getY() - yPosition;
             yPosition = motionEvent.getY();
 
-            for (DankButton[] dankButtons : devices.keySet()) {
-                for (DankButton dankButton : dankButtons) {
+            for (DankButton[] dankButtons : devices.keySet())
+                for (DankButton dankButton : dankButtons)
                     dankButton.addYPosition(yDistance);
-                }
-            }
         }
     }
 
     @Override
     public void receiveBack() {
-        if (showDevices) {
-            showDevices = false;
-        } else {
-            if (Global.BLUETOOTH_DATA != null) {
-                Global.BLUETOOTH_DATA.cancel();
-            }
-            Global.BLUETOOTH_SOCKET = null;
-            Global.BLUETOOTH_DATA = null;
-            terminate("MainMenuScene");
-        }
-    }
+        // bluetooth disabled
+        if (opponentPlayer == -1)
+            terminate(Global.SCENE_NAME.MAIN_MENU_SCENE);
 
-    @Override
-    public void reset() {
-        showDevices = false;
-        checkBluetooth = 0;
-
-        bluetoothServer = null;
-        bluetoothClient = null;
-
-        bg = new DankButton(new RectF(0, 0, Global.SCREEN_WIDTH, Global.SCREEN_HEIGHT));
-        bg.setRectARGB(150, 0, 255, 0);
-
-        float w = Global.SCREEN_WIDTH/4;
-        float h = Global.SCREEN_HEIGHT/10;
-
-        adventure = new DankButton(new RectF(w, h, 3*w, 3*h),"Adventure Mode");
-        adventure.setRectARGB(255, 200, 150, 0);
-        adventure.setTextARGB(255, 255, 255, 255);
-        adventure.setTextSize(h);
-        adventure.setPulse(10);
-
-        melee = new DankButton(new RectF(w, 4*h, 3*w, 6*h),"Melee");
-        melee.setRectARGB(255, 255, 100, 0);
-        melee.setTextARGB(255, 255, 255, 255);
-        melee.setTextSize(h);
-        melee.setPulse(10);
-
-        bluetooth = new DankButton(new RectF(w, 7*h, 3*w, 9*h),"Enable Bluetooth");
-        bluetooth.setRectARGB(255, 0, 100, 255);
-        bluetooth.setTextARGB(255, 255, 255, 255);
-        bluetooth.setTextSize(h);
-        bluetooth.setPulse(10);
-
-        host = new DankButton(new RectF(w, 7*h, 47*w/24, 9*h),"Host");
-        host.setRectARGB(255, 0, 200, 50);
-        host.setTextARGB(255, 255, 255, 255);
-        host.setTextSize(h);
-        host.setPulse(10);
-
-        connect = new DankButton(new RectF(49*w/24, 7*h, 3*w, 9*h),"Connect");
-        connect.setRectARGB(255, 0, 200, 50);
-        connect.setTextARGB(255, 255, 255, 255);
-        connect.setTextSize(h);
-        connect.setPulse(10);
+        // bluetooth enabled
+        if (bluetoothServer != null)
+            bluetoothServer.cancel();
+        if (bluetoothClient != null)
+            bluetoothClient.cancel();
 
         if (Global.BLUETOOTH_DATA != null) {
-            dankState = Global.BLUETOOTH_DATA.player;
-            Global.BLUETOOTH_DATA.write("GameMenuScene".getBytes());
+            Global.BLUETOOTH_DATA.cancel();
+            Global.BLUETOOTH_DATA = null;
+        }
+
+        if (opponentPlayer == 1 || opponentPlayer == 2) {
+            // if attempt to connect is happening, then cancel the attempt
+            opponentPlayer = 0;
+            chooseHostConnect = false;
+            showDevices = false;
+        } else {
+            // if no attempt to connect is happening, then quit to
+            terminate(Global.SCENE_NAME.MAIN_MENU_SCENE);
         }
     }
 
@@ -238,11 +224,9 @@ public class GameMenuScene implements Scene {
         bg.dankRectUpdate();
 
         if (showDevices) {
-            for (DankButton[] dankButtons : devices.keySet()) {
-                for (DankButton dankButton : dankButtons) {
+            for (DankButton[] dankButtons : devices.keySet())
+                for (DankButton dankButton : dankButtons)
                     dankButton.dankRectUpdate();
-                }
-            }
         } else {
             adventure.pulseUpdate();
             melee.pulseUpdate();
@@ -250,38 +234,30 @@ public class GameMenuScene implements Scene {
             host.pulseUpdate();
             connect.pulseUpdate();
 
-            if (dankState == 1) {
-                host.dankRectUpdate();
-            } else if (dankState == 2) {
-                connect.dankRectUpdate();
-            }
+            if (opponentPlayer == 1) connect.dankRectUpdate();
+            else if (opponentPlayer == 2) host.dankRectUpdate();
         }
 
-        if (checkBluetooth != 1 && Global.BLUETOOTH_SOCKET != null && Global.BLUETOOTH_SOCKET.isConnected()) {
-            Log.d("asdf", String.format("%d, %b, %b", checkBluetooth, Global.BLUETOOTH_SOCKET!=null, Global.BLUETOOTH_SOCKET.isConnected()));
-
+        if (opponentPlayer != -1 && opponentPlayer != 3
+                && Global.BLUETOOTH_SOCKET != null && Global.BLUETOOTH_SOCKET.isConnected()) {
+            // create bluetooth connection
             if (Global.BLUETOOTH_DATA == null) {
                 Global.BLUETOOTH_DATA = new BluetoothData();
+                Global.BLUETOOTH_DATA.isHost = (opponentPlayer == 1);
                 Global.BLUETOOTH_DATA.start();
+                // first bluetooth message
+                Global.BLUETOOTH_DATA.write("scene" + Global.CURRENT_SCENE.name());
             }
-
-            Global.BLUETOOTH_DATA.write("GameMenuScene".getBytes());
-
-            if (dankState == 1) {
-                bluetooth.setText("Connected (P1)");
-            } else {
-                bluetooth.setText("Connected (P2)");
-            }
-
-            Global.BLUETOOTH_DATA.player = dankState;
-            bluetoothServer = null;
-            bluetoothClient = null;
-            checkBluetooth = 1;
-            dankState = 0;
+            chooseHostConnect = false;
+            if (Global.BLUETOOTH_DATA.isHost) bluetooth.setText("Connected (P1)");
+            else bluetooth.setText("Connected (P2)");
+            opponentPlayer = 3;
         }
     }
 
-    private void terminate(String sceneName) {
-        Global.SCENE_NAME = sceneName;
+    private void terminate(Global.SCENE_NAME sceneName) {
+        Global.CURRENT_SCENE = sceneName;
+        if (Global.BLUETOOTH_DATA != null && Global.BLUETOOTH_DATA.isConnected())
+            Global.BLUETOOTH_DATA.write("scene" + sceneName.name());
     }
 }

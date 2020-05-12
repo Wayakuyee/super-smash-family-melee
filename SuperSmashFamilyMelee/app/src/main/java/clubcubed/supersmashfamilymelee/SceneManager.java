@@ -1,6 +1,7 @@
 package clubcubed.supersmashfamilymelee;
 
 import android.graphics.Canvas;
+import android.util.Log;
 import android.view.MotionEvent;
 
 import clubcubed.supersmashfamilymelee.Scenes.AdventureScene;
@@ -13,7 +14,7 @@ import clubcubed.supersmashfamilymelee.Scenes.StageScene;
 import clubcubed.supersmashfamilymelee.Scenes.StageSelectScene;
 
 public class SceneManager implements Scene {
-    private String sceneName;
+    private Global.SCENE_NAME sceneName;
     private Scene scene;
 
     public SceneManager() {
@@ -21,30 +22,31 @@ public class SceneManager implements Scene {
     }
 
     private void changeScene() {
-        sceneName = Global.SCENE_NAME;
-        switch (Global.SCENE_NAME) {
-            case "MainMenuScene":
+        sceneName = Global.CURRENT_SCENE;
+        switch (sceneName) {
+            case MAIN_MENU_SCENE:
                 scene = new MainMenuScene();
                 break;
-            case "GameMenuScene":
+            case GAME_MENU_SCENE:
                 scene = new GameMenuScene();
                 break;
-            case "OptionScene":
+            case OPTION_SCENE:
                 scene = new OptionScene();
                 break;
-            case "CharacterSelectScene":
+            case CHARACTER_SELECT_SCENE:
                 scene = new CharacterSelectScene();
                 break;
-            case "StageSelectScene":
+            case STAGE_SELECT_SCENE:
                 scene = new StageSelectScene();
                 break;
-            case "StageScene":
+            case STAGE_SCENE:
                 scene = new StageScene();
                 break;
-            case "AdventureScene":
+            case ADVENTURE_SCENE:
                 scene = new AdventureScene();
                 break;
             default:
+                Log.d("SceneManager", "undefined scene name" + sceneName.name());
                 scene = new MainMenuScene();
         }
     }
@@ -65,13 +67,8 @@ public class SceneManager implements Scene {
     }
 
     @Override
-    public void reset() {
-        scene.reset();
-    }
-
-    @Override
     public void update() {
-        if (!Global.SCENE_NAME.equals(sceneName)) {
+        if (Global.CURRENT_SCENE != sceneName) {
             changeScene();
         }
         scene.update();

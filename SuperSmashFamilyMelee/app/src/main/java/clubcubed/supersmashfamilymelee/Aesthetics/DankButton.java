@@ -43,16 +43,12 @@ public class DankButton {
     }
 
     public void setRectARGB(int ... argb) {
-        for (int i=0; i<Math.min(argb.length, 4); i++) {
-            rARGB[i] = argb[i];
-        }
+        System.arraycopy(argb, 0, rARGB, 0, Math.min(argb.length, 4));
         rectPaint.setARGB(rARGB[0], rARGB[1], rARGB[2], rARGB[3]);
     }
 
     public void setTextARGB(int ... argb) {
-        for (int i=0; i<Math.min(argb.length, 4); i++) {
-            tARGB[i] = argb[i];
-        }
+        System.arraycopy(argb, 0, tARGB, 0, Math.min(argb.length, 4));
         textPaint.setARGB(tARGB[0], tARGB[1], tARGB[2], tARGB[3]);
     }
 

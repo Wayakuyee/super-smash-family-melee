@@ -16,11 +16,32 @@ public class Global {
     public static float GAME_WIDTH = 750f;
     public static float GAME_DIFFERENCE;
 
-    public static String SCENE_NAME;
+    public static SCENE_NAME CURRENT_SCENE;
+    public enum SCENE_NAME {
+        NULL,
+        MAIN_MENU_SCENE,
+        GAME_MENU_SCENE,
+        ADVENTURE_SCENE,
+        OPTION_SCENE,
+        CHARACTER_SELECT_SCENE,
+        STAGE_SELECT_SCENE,
+        STAGE_SCENE
+    }
 
-    public static String STAGE_NAME;
-    public static String CHARACTER_ONE_NAME;
-    public static String CHARACTER_TWO_NAME;
+    public static STAGE_NAME CURRENT_STAGE = STAGE_NAME.NULL;
+    public enum STAGE_NAME {
+        // TODO: add more stages
+        NULL,
+        LAST_JOURNEY_END
+    }
+
+    public static CHARACTER_NAME CHARACTER_ONE_NAME = CHARACTER_NAME.NULL;
+    public static CHARACTER_NAME CHARACTER_TWO_NAME = CHARACTER_NAME.NULL;
+    public enum CHARACTER_NAME {
+        // TODO: add more characters
+        NULL,
+        FAX_MC_CLAD
+    }
 
     public static BluetoothAdapter BLUETOOTH_ADAPTER;
     public static BluetoothSocket BLUETOOTH_SOCKET;

@@ -11,7 +11,13 @@ public class AdventureScene implements Scene {
     private DankButton bg;
 
     public AdventureScene() {
-        reset();
+        bg = new DankButton(
+                new RectF(0, 0, Global.SCREEN_WIDTH, Global.SCREEN_HEIGHT),
+                "lol"
+        );
+        bg.setTextSize(Global.SCREEN_HEIGHT/2);
+        bg.setTextARGB(255, 255, 255, 255);
+        bg.setRectARGB(255, 100, 100, 0);
     }
 
     @Override
@@ -26,25 +32,7 @@ public class AdventureScene implements Scene {
 
     @Override
     public void receiveBack() {
-        terminate("GameMenuScene");
-    }
-
-    @Override
-    public void reset() {
-        bg = new DankButton(
-                new RectF(0, 0, Global.SCREEN_WIDTH, Global.SCREEN_HEIGHT),
-                "lol"
-        );
-        bg.setTextSize(Global.SCREEN_HEIGHT/2);
-        bg.setTextARGB(255, 255, 255, 255);
-        bg.setRectARGB(255, 100, 100, 0);
-
-        if (Global.BLUETOOTH_DATA != null) {
-            Global.BLUETOOTH_DATA.write("AdventureScene".getBytes());
-            if (Global.BLUETOOTH_DATA.read().equals("CharacterSelectScene")) {
-                terminate("CharacterSelectScene");
-            }
-        }
+        terminate(Global.SCENE_NAME.GAME_MENU_SCENE);
     }
 
     @Override
@@ -52,7 +40,9 @@ public class AdventureScene implements Scene {
 
     }
 
-    private void terminate(String sceneName) {
-        Global.SCENE_NAME = sceneName;
+    private void terminate(Global.SCENE_NAME sceneName) {
+        Global.CURRENT_SCENE = sceneName;
+        if (Global.BLUETOOTH_DATA != null && Global.BLUETOOTH_DATA.isConnected())
+            Global.BLUETOOTH_DATA.write("scene" + sceneName.name());
     }
 }
