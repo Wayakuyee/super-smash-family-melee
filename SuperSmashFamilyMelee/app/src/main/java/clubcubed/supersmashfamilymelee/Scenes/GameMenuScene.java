@@ -140,13 +140,14 @@ public class GameMenuScene implements Scene {
                     terminate(Global.SCENE_NAME.ADVENTURE_SCENE);
                 } else if (melee.collide(motionEvent.getX(), motionEvent.getY())) {
                     terminate(Global.SCENE_NAME.CHARACTER_SELECT_SCENE);
-                } else if (bluetoothEnabled && host.collide(motionEvent.getX(), motionEvent.getY())) {
+                } else if (bluetoothEnabled && !chooseHostConnect && bluetooth.collide(motionEvent.getX(), motionEvent.getY())) {
+                    chooseHostConnect = true;
+                } else if (chooseHostConnect && host.collide(motionEvent.getX(), motionEvent.getY())) {
                     // hosting
                     opponentPlayer = 2;
                     bluetoothServer = new BluetoothServer();
                     bluetoothServer.start();
-
-                } else if (bluetoothEnabled && connect.collide(motionEvent.getX(), motionEvent.getY())) {
+                } else if (chooseHostConnect && connect.collide(motionEvent.getX(), motionEvent.getY())) {
                     // show paired devices menu
                     opponentPlayer = 1;
                     showDevices = true;
