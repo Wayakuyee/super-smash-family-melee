@@ -39,6 +39,7 @@ public class StageScene implements Scene {
     private DankButton exitButton;
     private DankButton pauseScreen;
     private DankButton waitScreen;
+    private Random random;
 
     public StageScene() {
         paint = new Paint();
@@ -119,8 +120,21 @@ public class StageScene implements Scene {
 
         } else {
             gameState = 0;
-            // TODO: RANDOMIZE CHARACTERS
-            Global.CHARACTER_TWO_NAME = Global.CHARACTER_NAME.FAX_MC_CLAD;
+            random = new Random();
+            // TODO: ADD CHARACTERS
+            switch(random.nextInt(1)) {
+                //case 1:
+                //    Global.CHARACTER_TWO_NAME = Global.CHARACTER_NAME.FAX_MC_CLAD;
+                //    break;
+                case 2:
+                    Global.CHARACTER_TWO_NAME = Global.CHARACTER_NAME.NULL;
+                    break;
+                case 3:
+                //    Global.CHARACTER_TWO_NAME = Global.CHARACTER_NAME.NULL;
+                    break;
+                default:
+                    Global.CHARACTER_TWO_NAME = Global.CHARACTER_NAME.FAX_MC_CLAD;
+            }
         }
 
         // TODO: ADD STAGES
@@ -294,6 +308,7 @@ public class StageScene implements Scene {
         // check for game end
         if (gameState > 0 || (multiplayer && Global.BLUETOOTH_DATA.gameState > 0)) {
             if (gameState <= 0) {
+                // implies multiplayer mode
                 gameState = Global.BLUETOOTH_DATA.gameState;
                 Global.BLUETOOTH_DATA.write("state" + String.valueOf(gameState));
             }
@@ -319,7 +334,11 @@ public class StageScene implements Scene {
         } else {
             characterOne.receiveInput(inputs);
             // TODO: AI
-            characterTwo.receiveInput(new Float[]{-inputs[0], inputs[1], inputs[2], inputs[3]});
+            characterTwo.receiveInput(
+                    new Float[]{
+                            random.nextFloat()*2 - 1f, random.nextFloat()*2 - 1f,
+                            random.nextFloat(), random.nextFloat()
+                    });
         }
 
         // update character actions

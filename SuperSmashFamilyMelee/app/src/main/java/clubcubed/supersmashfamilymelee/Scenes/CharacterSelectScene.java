@@ -28,7 +28,7 @@ public class CharacterSelectScene implements Scene {
         wait.setRectARGB(100, 255, 0, 0);
 
         // TODO: add characters
-        characters.add(new DankButton("FaxMcClad"));
+        characters.add(new DankButton("Fax McClad"));
         characterNames.add(Global.CHARACTER_NAME.FAX_MC_CLAD);
 
         int columns = 5;

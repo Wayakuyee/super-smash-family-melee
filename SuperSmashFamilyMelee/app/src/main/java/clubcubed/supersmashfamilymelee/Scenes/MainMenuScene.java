@@ -16,6 +16,7 @@ public class MainMenuScene implements Scene {
                 "pog");
         bg.setRectARGB(150, 255, 255, 0);
         bg.setTextARGB(255, 255, 255, 255);
+        bg.setTextSize(Global.SCREEN_HEIGHT/5);
     }
 
     @Override

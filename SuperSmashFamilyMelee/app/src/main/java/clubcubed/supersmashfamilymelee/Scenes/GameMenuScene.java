@@ -24,20 +24,18 @@ public class GameMenuScene implements Scene {
     private HashMap<DankButton[], BluetoothDevice> devices;
     private boolean showDevices;
 
-    private boolean bluetoothEnabled;
+    // -1 : no bluetooth
+    //  0 : no opponent
+    //  1 : opponent is hosting - we are client
+    //  2 : opponent is client  - we are hosting
+    //  3 : opponent connected
+    private short opponentPlayer;
     private boolean chooseHostConnect;
-
     private BluetoothServer bluetoothServer;
     private BluetoothClient bluetoothClient;
 
     // for scrolling
     private float yPosition;
-
-    //-1 : opponent already set
-    // 0 : no opponent
-    // 1 : opponent is host   - we are client
-    // 2 : opponent is client - we are host
-    private short opponentPlayer;
 
     public GameMenuScene() {
         bg = new DankButton(new RectF(0, 0, Global.SCREEN_WIDTH, Global.SCREEN_HEIGHT));
@@ -84,10 +82,9 @@ public class GameMenuScene implements Scene {
 
         // check if bluetooth is enabled
         if (Global.BLUETOOTH_ADAPTER != null && Global.BLUETOOTH_ADAPTER.isEnabled()) {
-            bluetoothEnabled = true;
+            opponentPlayer = 0;
         } else {
-            bluetoothEnabled = false;
-            opponentPlayer = -1;
+            opponentPlayer = -2;
             bluetooth.setText("Bluetooth Disabled");
         }
     }
@@ -140,7 +137,8 @@ public class GameMenuScene implements Scene {
                     terminate(Global.SCENE_NAME.ADVENTURE_SCENE);
                 } else if (melee.collide(motionEvent.getX(), motionEvent.getY())) {
                     terminate(Global.SCENE_NAME.CHARACTER_SELECT_SCENE);
-                } else if (bluetoothEnabled && !chooseHostConnect && bluetooth.collide(motionEvent.getX(), motionEvent.getY())) {
+                } else if (opponentPlayer==0 && !chooseHostConnect
+                        && bluetooth.collide(motionEvent.getX(), motionEvent.getY())) {
                     chooseHostConnect = true;
                 } else if (chooseHostConnect && host.collide(motionEvent.getX(), motionEvent.getY())) {
                     // hosting
@@ -195,6 +193,11 @@ public class GameMenuScene implements Scene {
 
     @Override
     public void receiveBack() {
+        // bluetooth disabled
+        if (opponentPlayer == -1)
+            terminate(Global.SCENE_NAME.MAIN_MENU_SCENE);
+
+        // bluetooth enabled
         if (bluetoothServer != null)
             bluetoothServer.cancel();
         if (bluetoothClient != null)
@@ -205,12 +208,13 @@ public class GameMenuScene implements Scene {
             Global.BLUETOOTH_DATA = null;
         }
 
-        if (opponentPlayer != 0) {
+        if (opponentPlayer == 1 || opponentPlayer == 2) {
+            // if attempt to connect is happening, then cancel the attempt
             opponentPlayer = 0;
             chooseHostConnect = false;
             showDevices = false;
         } else {
-
+            // if no attempt to connect is happening, then quit to
             terminate(Global.SCENE_NAME.MAIN_MENU_SCENE);
         }
     }
@@ -234,7 +238,7 @@ public class GameMenuScene implements Scene {
             else if (opponentPlayer == 2) host.dankRectUpdate();
         }
 
-        if (bluetoothEnabled && opponentPlayer != -1
+        if (opponentPlayer != -1 && opponentPlayer != 3
                 && Global.BLUETOOTH_SOCKET != null && Global.BLUETOOTH_SOCKET.isConnected()) {
             // create bluetooth connection
             if (Global.BLUETOOTH_DATA == null) {
@@ -247,7 +251,7 @@ public class GameMenuScene implements Scene {
             chooseHostConnect = false;
             if (Global.BLUETOOTH_DATA.isHost) bluetooth.setText("Connected (P1)");
             else bluetooth.setText("Connected (P2)");
-            opponentPlayer = -1;
+            opponentPlayer = 3;
         }
     }
 

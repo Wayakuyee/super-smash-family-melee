@@ -139,11 +139,11 @@ public class FaxMcClad implements Character {
     }
 
     private void action() {
-        // 0 == stand
-        // 1 == up
-        // 2 == down
-        // 3 == left
-        // 4 == right
+        // 0 : stand
+        // 1 : up
+        // 2 : down
+        // 3 : left
+        // 4 : right
         int direction = 0;
 
         if (!(inputs[0]==0 && inputs[1]==0)) {
@@ -163,7 +163,7 @@ public class FaxMcClad implements Character {
         }
 
         // if attack
-        if (inputs[3] > 0 && attackDag < 1) {
+        if (inputs[3] >= 0.5 && attackDag < 1) {
             if (direction == 1) {
                 upAttack();
             } else if (direction == 2) {
@@ -179,7 +179,7 @@ public class FaxMcClad implements Character {
         }
 
         // if jump
-        if (inputs[2] > 0f) {
+        if (inputs[2] >= 0.5f) {
             jump();
             // return;
         }
