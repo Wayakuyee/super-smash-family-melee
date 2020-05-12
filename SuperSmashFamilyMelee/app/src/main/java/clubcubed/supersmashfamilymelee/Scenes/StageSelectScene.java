@@ -39,21 +39,25 @@ public class StageSelectScene implements Scene {
         wait.setTextARGB(255, 255, 255, 255);
         wait.setRectARGB(100, 255, 0, 0);
 
-        // TODO: add stages
-        stages.add(new DankButton("Last Journey End"));
-        stageNames.add(Global.STAGE_NAME.LAST_JOURNEY_END);
+        Global.STAGE_MANAGER.GET_STAGES(stages);
+        Global.STAGE_MANAGER.GET_STAGE_NAMES(stageNames);
 
         int columns = 5;
         int rows = 2;
         float x = Global.SCREEN_WIDTH/columns;
         float y = Global.SCREEN_HEIGHT/rows;
+        float border = Math.min(x/40, y/40);
 
         for (int i=0; i<stages.size(); i++) {
-            stages.get(i).setRectF(new RectF((i%columns)*x, (i%rows)*y, ((i%columns)+1)*x, ((i%rows)+1)*y));
-            stages.get(i).setTextSize(Math.min(x/10, y/10));
-            stages.get(i).setTextARGB(255, 255, 0, 0);
-            stages.get(i).setPulse(100);
-            stages.get(i).setRectARGB(150, 60, 60, 60);
+            DankButton s = stages.get(i);
+            s.setRectF(new RectF(
+                    (i%columns)*x + border, ((i/columns)%rows)*y + border,
+                    ((i%columns)+1)*x - border, (((i/columns)%rows)+1)*y - border
+                    ));
+            s.setTextSize(Math.min(x/10, y/10));
+            s.setTextARGB(255, 255, 0, 0);
+            s.setPulse(100);
+            s.setRectARGB(150, 60, 60, 60);
         }
     }
 

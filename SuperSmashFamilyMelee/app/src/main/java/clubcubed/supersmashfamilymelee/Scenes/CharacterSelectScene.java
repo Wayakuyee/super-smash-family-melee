@@ -27,21 +27,24 @@ public class CharacterSelectScene implements Scene {
         wait.setTextARGB(255, 255, 255, 255);
         wait.setRectARGB(100, 255, 0, 0);
 
-        // TODO: add characters
-        characters.add(new DankButton("Fax McClad"));
-        characterNames.add(Global.CHARACTER_NAME.FAX_MC_CLAD);
+        Global.CHARACTER_MANAGER.GET_CHARACTERS(characters);
+        Global.CHARACTER_MANAGER.GET_CHARACTER_NAMES(characterNames);
 
         int columns = 5;
         int rows = 2;
         float x = Global.SCREEN_WIDTH/columns;
         float y = Global.SCREEN_HEIGHT/rows;
+        float border = Math.min(x/40, y/40);
 
         for (int i=0; i<characters.size(); i++) {
-            characters.get(i).setRectF(new RectF((i%columns)*x, (i%rows)*y, ((i%columns)+1)*x, ((i%rows)+1)*y));
-            characters.get(i).setTextSize(Math.min(x/10, y/10));
-            characters.get(i).setTextARGB(255, 255, 0, 0);
-            characters.get(i).setPulse(100);
-            characters.get(i).setRectARGB(150, 60, 60, 60);
+            DankButton c = characters.get(i);
+            c.setRectF(new RectF(
+                    (i%columns)*x + border, ((i/columns)%rows)*y + border,
+                    ((i%columns)+1)*x - border, (((i/columns)%rows)+1)*y - border
+                    ));            c.setTextSize(Math.min(x/10, y/10));
+            c.setTextARGB(255, 255, 0, 0);
+            c.setPulse(100);
+            c.setRectARGB(150, 60, 60, 60);
         }
 
         // no waiting if no multiplayer

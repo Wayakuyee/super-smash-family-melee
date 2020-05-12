@@ -4,7 +4,6 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
-import android.util.Log;
 import android.view.MotionEvent;
 
 import java.util.Locale;
@@ -12,10 +11,8 @@ import java.util.Random;
 
 import clubcubed.supersmashfamilymelee.Aesthetics.DankButton;
 import clubcubed.supersmashfamilymelee.Characters.Character;
-import clubcubed.supersmashfamilymelee.Characters.FaxMcClad;
 import clubcubed.supersmashfamilymelee.Controller;
 import clubcubed.supersmashfamilymelee.Global;
-import clubcubed.supersmashfamilymelee.Stages.LastJourneyEnd;
 import clubcubed.supersmashfamilymelee.Stages.Stage;
 
 public class StageScene implements Scene {
@@ -121,49 +118,12 @@ public class StageScene implements Scene {
         } else {
             gameState = 0;
             random = new Random();
-            // TODO: ADD CHARACTERS
-            switch(random.nextInt(1)) {
-                //case 1:
-                //    Global.CHARACTER_TWO_NAME = Global.CHARACTER_NAME.FAX_MC_CLAD;
-                //    break;
-                case 2:
-                    Global.CHARACTER_TWO_NAME = Global.CHARACTER_NAME.NULL;
-                    break;
-                case 3:
-                //    Global.CHARACTER_TWO_NAME = Global.CHARACTER_NAME.NULL;
-                    break;
-                default:
-                    Global.CHARACTER_TWO_NAME = Global.CHARACTER_NAME.FAX_MC_CLAD;
-            }
+            Global.CHARACTER_TWO_NAME = Global.CHARACTER_MANAGER.GET_RANDOM_NAME(random);
         }
 
-        // TODO: ADD STAGES
-        switch (Global.CURRENT_STAGE) {
-            case LAST_JOURNEY_END:
-                stage = new LastJourneyEnd();
-                break;
-            default:
-                Log.d("StageScene", "undefined STAGE_NAME" + Global.CURRENT_STAGE.name());
-                stage = new LastJourneyEnd();
-        }
-
-        // TODO: ADD CHARACTERS
-        switch (Global.CHARACTER_ONE_NAME) {
-            case FAX_MC_CLAD:
-                characterOne = new FaxMcClad(1);
-                break;
-            default:
-                Log.d("StageScene", "undefined CHARACTER_ONE_NAME" + Global.CHARACTER_ONE_NAME.name());
-                characterOne = new FaxMcClad(1);
-        }
-        switch (Global.CHARACTER_TWO_NAME) {
-            case FAX_MC_CLAD:
-                characterTwo = new FaxMcClad(2);
-                break;
-            default:
-                Log.d("StageScene", "undefined CHARACTER_TWO_NAME" + Global.CHARACTER_TWO_NAME.name());
-                characterTwo = new FaxMcClad(2);
-        }
+        stage = Global.STAGE_MANAGER.GET_STAGE(Global.CURRENT_STAGE);
+        characterOne = Global.CHARACTER_MANAGER.GET_CHARACTER(Global.CHARACTER_ONE_NAME, 1);
+        characterTwo = Global.CHARACTER_MANAGER.GET_CHARACTER(Global.CHARACTER_TWO_NAME, 2);
 
         // loading complete
         if (multiplayer) {
@@ -334,11 +294,13 @@ public class StageScene implements Scene {
         } else {
             characterOne.receiveInput(inputs);
             // TODO: AI
-            characterTwo.receiveInput(
-                    new Float[]{
-                            random.nextFloat()*2 - 1f, random.nextFloat()*2 - 1f,
-                            random.nextFloat(), random.nextFloat()
-                    });
+            // 1
+//            characterTwo.receiveInput(
+//                    new Float[]{
+//                            random.nextFloat()*2 - 1f, random.nextFloat()*2 - 1f,
+//                            random.nextFloat(), random.nextFloat()
+//                    });
+            characterTwo.receiveInput(new Float[]{-inputs[0], inputs[1], inputs[2], inputs[3]});
         }
 
         // update character actions
@@ -346,20 +308,30 @@ public class StageScene implements Scene {
         characterTwo.update();
 
         // check character attack collision
-        // considers dragonball moments
-        RectF rectOne = characterOne.getCharacter();
-        int attackDagOne = characterOne.getAttackDag();
-        characterOne.hit(characterTwo.getCharacter(), characterTwo.getAttackDag());
-        characterTwo.hit(rectOne, attackDagOne);
+        if (characterOne.isAttacking() && characterTwo.isAttacking()) {
+            // considers dragonball moments
+            RectF rectOne = characterOne.getAttackHitbox();
+            int attackDagOne = characterOne.getAttackDag();
+            if (characterOne.hit(characterTwo.getAttackHitbox(), characterTwo.getAttackDag()))
+                characterTwo.hitSuccess();
+            if (characterTwo.hit(rectOne, attackDagOne))
+                characterOne.hitSuccess();
+        } else if (characterOne.isAttacking()) {
+            if (characterTwo.hit(characterOne.getAttackHitbox(), characterOne.getAttackDag()))
+                characterOne.hitSuccess();
+        } else if (characterTwo.isAttacking()) {
+            if (characterOne.hit(characterTwo.getAttackHitbox(), characterTwo.getAttackDag()))
+                characterTwo.hitSuccess();
+        }
 
         // update stage (hazards, moving platforms, etc)
         stage.update();
 
         // check characters in blastzone
         for (RectF rectF : stage.getBlastntZone())
-            characterOne.collide(rectF, "blastntZone");
+            characterOne.collide(rectF, Stage.PlatformType.BlastntZone);
         for (RectF rectF : stage.getBlastntZone())
-            characterTwo.collide(rectF, "blastntZone");
+            characterTwo.collide(rectF, Stage.PlatformType.BlastntZone);
 
         // update display of character stocks and percentages
         dataOne.setText(String.valueOf(characterOne.getStock()));
@@ -369,13 +341,13 @@ public class StageScene implements Scene {
 
         // place characters on soft/hard plat
         for (RectF rectF : stage.getSoftPlatform())
-            characterOne.collide(rectF, "softPlatform");
+            characterOne.collide(rectF, Stage.PlatformType.SoftPlatform);
         for (RectF rectF : stage.getSoftPlatform())
-            characterTwo.collide(rectF, "softPlatform");
+            characterTwo.collide(rectF, Stage.PlatformType.SoftPlatform);
         for (RectF rectF : stage.getHardPlatform())
-            characterOne.collide(rectF, "hardPlatform");
+            characterOne.collide(rectF, Stage.PlatformType.HardPlatform);
         for (RectF rectF : stage.getHardPlatform())
-            characterTwo.collide(rectF, "hardPlatform");
+            characterTwo.collide(rectF, Stage.PlatformType.HardPlatform);
 
         // check if game over
         if (characterOne.getStock() <= 0) {

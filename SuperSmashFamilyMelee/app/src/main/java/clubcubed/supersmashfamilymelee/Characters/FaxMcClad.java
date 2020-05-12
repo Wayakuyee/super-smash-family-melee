@@ -3,12 +3,12 @@ package clubcubed.supersmashfamilymelee.Characters;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Rect;
 import android.graphics.RectF;
 
 import clubcubed.supersmashfamilymelee.Global;
+import clubcubed.supersmashfamilymelee.Stages.Stage;
 
-public class FaxMcClad implements Character {
+public class FaxMcClad extends Character {
     private RectF character;
     private Paint characterPaint;
 
@@ -17,8 +17,9 @@ public class FaxMcClad implements Character {
     // attack dag means attack damage and lag
     private int attackDag;
     private int attackDagMax;
+    private boolean attacking;
 
-    private String state;
+    private MovementState state;
     private int jumpCount;
     private int jumpFrame;
 
@@ -26,20 +27,24 @@ public class FaxMcClad implements Character {
 
     private int percent;
     private int stock;
-    private int player;
+    private float weight;
+    private float speed;
 
-    private double c = 60.0/1000;
+    private double c;
 
     public FaxMcClad(int player) {
+        super(player);
         inputs = new Float[]{0f, 0f, 0f, 0f};
 
         character = new RectF(0, 0, 50*Global.GAME_RATIO, 100*Global.GAME_RATIO);
-        this.player = player;
 
         characterPaint = new Paint();
         characterPaint.setColor(Color.argb(200 , 255,140,0));
 
         stock = 4;
+        c = 60.0/1000;
+        weight = Global.GAME_RATIO * 3f;
+        speed = Global.GAME_RATIO * 4f;
 
         spawn();
     }
@@ -51,7 +56,7 @@ public class FaxMcClad implements Character {
         character.top = 0;
         character.bottom = height;
 
-        if (player == 1) {
+        if (getPlayer() == 1) {
             // top left, 1/4 screen
             character.left = (Global.GAME_WIDTH/4*Global.GAME_RATIO +Global.GAME_DIFFERENCE) - (width/2);
             character.right = (Global.GAME_WIDTH/4*Global.GAME_RATIO +Global.GAME_DIFFERENCE) + (width/2);
@@ -61,12 +66,13 @@ public class FaxMcClad implements Character {
             character.right = (3*Global.GAME_WIDTH/4*Global.GAME_RATIO +Global.GAME_DIFFERENCE) + (width/2);
         }
 
-        state = "fall";
+        state = MovementState.Fall;
 
         jumpCount = 1;
         startTime = 0f;
         attackDag = 0;
         attackDagMax = 0;
+        attacking = false;
         percent = 0;
     }
 
@@ -76,20 +82,20 @@ public class FaxMcClad implements Character {
     }
 
     private void jump() {
-        if (jumpCount>0 && jumpFrame<2) {
+        if (jumpCount > 0 && jumpFrame < 2) {
             jumpCount -= 1;
-            state = "jump";
-            jumpFrame = 10;
+            state = MovementState.Jump;
+            jumpFrame = 5;
         }
     }
 
     private void run(float x) {
-        move((x*Global.GAME_RATIO), 0);
+        move(x*speed, 0);
     }
 
     private void crouch(float x, float y) {
-        state = "crouch";
-        move((x*Global.GAME_RATIO), (-y*2*Global.GAME_RATIO));
+        state = MovementState.Crouch;
+        move(x*speed, -y*speed);
     }
 
     private void neutralAttack() {
@@ -146,54 +152,48 @@ public class FaxMcClad implements Character {
         // 4 : right
         int direction = 0;
 
-        if (!(inputs[0]==0 && inputs[1]==0)) {
-            if (Math.abs(inputs[0]) > Math.abs(inputs[1])) {
-                if (inputs[0] < 0f) {
-                    direction = 3;
-                } else {
-                    direction = 4;
-                }
-            } else {
-                if (inputs[1] > 0f) {
-                    direction = 1;
-                } else {
-                    direction = 2;
-                }
-            }
+        // get control stick direction
+        if (!(inputs[0] == 0 && inputs[1] == 0)) {
+            if (Math.abs(inputs[0]) > Math.abs(inputs[1]))
+                direction = (inputs[0] < 0f) ? 3 : 4;
+            else
+                direction = (inputs[1] > 0f) ? 1 : 2;
         }
 
-        // if attack
-        if (inputs[3] >= 0.5 && attackDag < 1) {
-            if (direction == 1) {
+        // check attack, cannot attack while in attack lag
+        if (inputs[3] >= 0.5 && attackDag <= 0) {
+            attacking = true;
+            if (direction == 1)
                 upAttack();
-            } else if (direction == 2) {
+            else if (direction == 2)
                 downAttack();
-            } else if (direction == 3) {
+            else if (direction == 3)
                 leftAttack();
-            } else if (direction == 4) {
+            else if (direction == 4)
                 rightAttack();
-            } else {
+            else
                 neutralAttack();
-            }
-            // return;
         }
 
-        // if jump
-        if (inputs[2] >= 0.5f) {
+        // check jump, cannot jump while in attack lag
+        if (inputs[2] >= 0.5f && attackDag <= 0)
             jump();
-            // return;
-        }
 
-        // if move
-        if (direction==3 || direction==4) {
+        // check run
+        if (direction >= 3)
             run(inputs[0]);
-        } else if (direction==2 && !state.equals("jump")) {
+        // check crouch, cannot be jumping
+        else if (direction == 2 && state != MovementState.Jump)
             crouch(inputs[0], inputs[1]);
-        }
 
-        if (direction!=2 && state.equals("crouch")) {
-            state = "fall";
-        }
+        // check falling
+        if (direction != 2 && state == MovementState.Crouch)
+            state = MovementState.Fall;
+    }
+
+    @Override
+    public boolean isAttacking() {
+        return attacking;
     }
 
     @Override
@@ -202,7 +202,7 @@ public class FaxMcClad implements Character {
     }
 
     @Override
-    public RectF getCharacter() {
+    public RectF getAttackHitbox() {
         return new RectF(character);
     }
 
@@ -217,19 +217,18 @@ public class FaxMcClad implements Character {
     }
 
     @Override
-    public void collide(RectF rectF, String type) {
-        if (type.equals("blastntZone") && !RectF.intersects(rectF, character)) {
+    public void collide(RectF rectF, Stage.PlatformType type) {
+        if (type == Stage.PlatformType.BlastntZone && !RectF.intersects(rectF, character)) {
+            // out of bounds
             die();
-
-        } else if (type.equals("hardPlatform") && RectF.intersects(rectF, character)) {
-            if (!state.equals("jump")) {
+        } else if (type == Stage.PlatformType.HardPlatform && RectF.intersects(rectF, character)) {
+            if (state != MovementState.Jump) {
                 // teleport on top of stage
                 move(0, -(character.bottom - rectF.top));
                 jumpCount = 2;
             }
-
-        } else if (type.equals("softPlatform") && RectF.intersects(rectF, character)) {
-            if (!state.equals("jump") && !state.equals("crouch")) {
+        } else if (type == Stage.PlatformType.SoftPlatform && RectF.intersects(rectF, character)) {
+            if (state != MovementState.Jump && state != MovementState.Crouch) {
                 // teleport above stage
                 move(0, -(character.bottom - rectF.top));
                 jumpCount = 2;
@@ -238,10 +237,9 @@ public class FaxMcClad implements Character {
     }
 
     @Override
-    public void hit(RectF rectF, int attackDag) {
-        if (attackDag>0 && RectF.intersects(rectF, character)) {
+    public boolean hit(RectF rectF, int attackDag) {
+        if (attackDag > 0 && RectF.intersects(rectF, character)) {
             percent += attackDag;
-
             /*
             float dX = character.centerX() - rectF.centerX();
             float dY = character.centerY() - rectF.centerY();
@@ -249,13 +247,20 @@ public class FaxMcClad implements Character {
             dX /= dMax;
             dY /= dMax;
             */
-
             move(
                     ((character.centerX()-rectF.centerX())/Global.GAME_RATIO) * percent/100,
                     ((character.centerY()-rectF.centerY())/Global.GAME_RATIO) * percent/100
             );
-            this.attackDag = 0;
+            return true;
         }
+
+        return false;
+    }
+
+    @Override
+    public void hitSuccess() {
+        // only hit once
+        attacking = false;
     }
 
     @Override
@@ -274,29 +279,35 @@ public class FaxMcClad implements Character {
 
     @Override
     public void draw(Canvas canvas) {
-        if (attackDag < 1) {
-            characterPaint.setColor(Color.argb(200 , 255,140,0));
-        }
         canvas.drawRect(character, characterPaint);
     }
 
     @Override
     public void update() {
+        // compute input actions
         action();
 
-        if (!state.equals("jump")) {
-            move(0, Global.GAME_RATIO);
-        } else if (state.equals("jump") && jumpFrame>0) {
-            move(0, (-5 * Global.GAME_RATIO));
+        // apply gravity
+        if (state != MovementState.Jump) {
+            // falling
+            move(0, weight);
+        } else if (jumpFrame > 0) {
+            // jumping
+            move(0, -1 * jumpFrame * weight);
             jumpFrame -= 1;
-        } else if (state.equals("jump") && jumpFrame<1) {
-            state = "fall";
+        } else {
+            // done jumping
+            state = MovementState.Fall;
         }
 
-        if (attackDag > 0) {
-            // Log.d("mfw face when i literal die", String.valueOf(attackDag) +" "+ String.valueOf(System.currentTimeMillis()) + " " + String.valueOf(startTime)+ " " + String.valueOf(c));
+        // attack lag passing by
+        if (attackDag > 0)
             attackDag = (int)((attackDagMax - ((System.currentTimeMillis() - startTime) * c)) +0.5);
-        }
 
+        // repaint character if no attack
+        if (attackDag <= 0) {
+            attacking = false;
+            characterPaint.setColor(Color.argb(200 , 255,140,0));
+        }
     }
 }

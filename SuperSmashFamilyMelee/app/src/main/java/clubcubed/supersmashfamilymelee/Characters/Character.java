@@ -3,17 +3,33 @@ package clubcubed.supersmashfamilymelee.Characters;
 import android.graphics.Canvas;
 import android.graphics.RectF;
 
-public interface Character {
-    int getAttackDag();
-    RectF getCharacter();
-    int getStock();
-    int getPercent();
-    void collide(RectF rectF, String type);
-    void hit(RectF rectF, int attackDag);
-    void receiveInput(Float[] inputs);
-    void receiveBluetooth(String[] inputs);
-    void draw(Canvas canvas);
-    void update();
+import clubcubed.supersmashfamilymelee.Stages.Stage;
+
+public abstract class Character {
+    private int player;
+    Character(int player) {
+        this.player = player;
+    }
+    int getPlayer() {
+        return player;
+    }
+
+    public abstract boolean isAttacking();
+    public abstract int getAttackDag();
+    public abstract RectF getAttackHitbox();
+    public abstract int getStock();
+    public abstract int getPercent();
+    public abstract void collide(RectF rectF, Stage.PlatformType type);
+    public abstract boolean hit(RectF rectF, int attackDag);
+    public abstract void hitSuccess();
+    public abstract void receiveInput(Float[] inputs);
+    public abstract void receiveBluetooth(String[] inputs);
+    public abstract void draw(Canvas canvas);
+    public abstract void update();
+
+    public enum MovementState {
+        Crouch, Fall, Jump
+    }
 
     /*
 

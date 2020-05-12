@@ -11,4 +11,8 @@ public interface Stage {
     ArrayList<RectF> getHardPlatform();
     void draw(Canvas canvas);
     void update();
+
+    enum PlatformType {
+        BlastntZone, SoftPlatform, HardPlatform
+    }
 }
