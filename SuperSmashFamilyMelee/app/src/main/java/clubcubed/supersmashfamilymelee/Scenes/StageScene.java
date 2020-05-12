@@ -240,6 +240,7 @@ public class StageScene implements Scene {
         if (multiplayer && Global.BLUETOOTH_DATA.gameState == -2)
             return;
 
+        // send state changes to opponent
         if (gameState == 0) {
             gameState = -1;
             if (multiplayer)
@@ -291,7 +292,11 @@ public class StageScene implements Scene {
         }
 
         // check for game end
-        if (gameState > 0) {
+        if (gameState > 0 || (multiplayer && Global.BLUETOOTH_DATA.gameState > 0)) {
+            if (gameState <= 0) {
+                gameState = Global.BLUETOOTH_DATA.gameState;
+                Global.BLUETOOTH_DATA.write("state" + String.valueOf(gameState));
+            }
             if (endgame > 90)
                 exitGame();
             endgame++;
@@ -322,8 +327,8 @@ public class StageScene implements Scene {
         characterTwo.update();
 
         // check character attack collision
+        // considers dragonball moments
         RectF rectOne = characterOne.getCharacter();
-        // new int for dragonball moments lo l
         int attackDagOne = characterOne.getAttackDag();
         characterOne.hit(characterTwo.getCharacter(), characterTwo.getAttackDag());
         characterTwo.hit(rectOne, attackDagOne);

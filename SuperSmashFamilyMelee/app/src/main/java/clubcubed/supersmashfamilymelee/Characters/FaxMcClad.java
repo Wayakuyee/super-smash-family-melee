@@ -3,6 +3,7 @@ package clubcubed.supersmashfamilymelee.Characters;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Rect;
 import android.graphics.RectF;
 
 import clubcubed.supersmashfamilymelee.Global;
@@ -202,7 +203,7 @@ public class FaxMcClad implements Character {
 
     @Override
     public RectF getCharacter() {
-        return character;
+        return new RectF(character);
     }
 
     @Override
