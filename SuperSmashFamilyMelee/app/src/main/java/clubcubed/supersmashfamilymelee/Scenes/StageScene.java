@@ -294,13 +294,12 @@ public class StageScene implements Scene {
         } else {
             characterOne.receiveInput(inputs);
             // TODO: AI
-            // 1
-//            characterTwo.receiveInput(
-//                    new Float[]{
-//                            random.nextFloat()*2 - 1f, random.nextFloat()*2 - 1f,
-//                            random.nextFloat(), random.nextFloat()
-//                    });
-            characterTwo.receiveInput(new Float[]{-inputs[0], inputs[1], inputs[2], inputs[3]});
+            characterTwo.receiveInput(
+                    new Float[]{
+                            random.nextFloat()*2 - 1f, random.nextFloat()*2 - 1f,
+                            random.nextFloat(), random.nextFloat()
+                    });
+//            characterTwo.receiveInput(new Float[]{-inputs[0], inputs[1], inputs[2], inputs[3]});
         }
 
         // update character actions
