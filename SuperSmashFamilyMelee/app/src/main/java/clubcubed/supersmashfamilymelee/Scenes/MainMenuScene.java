@@ -42,7 +42,10 @@ public class MainMenuScene implements Scene {
     private void terminate(Global.SCENE_NAME sceneName) {
         Global.CURRENT_SCENE = sceneName;
         if (Global.BLUETOOTH_DATA != null) {
-            Global.BLUETOOTH_DATA.cancel();
+            if (Global.BLUETOOTH_DATA.isConnected()) {
+                Global.BLUETOOTH_DATA.write("cancel");
+                Global.BLUETOOTH_DATA.cancel();
+            }
             Global.BLUETOOTH_DATA = null;
         }
     }

@@ -33,6 +33,7 @@ public class StageScene implements Scene {
     private int endgame;
     private boolean multiplayer;
     private Stage stage;
+    private DankButton desync;
     private DankButton exitButton;
     private DankButton pauseScreen;
     private DankButton waitScreen;
@@ -53,18 +54,24 @@ public class StageScene implements Scene {
 
         exitButton = new DankButton(new RectF(0, 0, Global.SCREEN_WIDTH/3, Global.SCREEN_HEIGHT/10),
                 "Quit Game");
-        pauseScreen.setTextARGB(100, 0, 0, 255);
-        exitButton.setTextARGB(255, 255, 0, 0);
+        exitButton.setRectARGB(200, 255, 0, 0);
+        exitButton.setTextARGB(100, 0, 0, 100);
         exitButton.setTextSize(Global.SCREEN_HEIGHT/10);
 
         waitScreen = new DankButton(
                 new RectF(0, 0, Global.SCREEN_WIDTH, Global.SCREEN_HEIGHT),
                 "waiting");
-        waitScreen.setTextSize(Global.SCREEN_HEIGHT/2);
-        waitScreen.setTextARGB(255, 0, 255, 0);
         waitScreen.setRectARGB(100, 255, 0, 0);
+        waitScreen.setTextARGB(255, 0, 255, 0);
+        waitScreen.setTextSize(Global.SCREEN_HEIGHT/2);
 
-        controller = new Controller(4);
+        desync = new DankButton(new RectF(0, 0, Global.GAME_WIDTH, Global.GAME_HEIGHT/8),
+                "desync detected");
+        desync.setRectARGB(0, 0, 0, 0);
+        desync.setTextARGB(255, 255, 255, 255);
+        desync.setTextSize(Global.GAME_HEIGHT/14);
+
+        controller = new Controller(10);
         endgame = 0;
 
         dataOne = new DankButton(
@@ -87,22 +94,19 @@ public class StageScene implements Scene {
         dataTwo.setTextARGB(255, 255, 255, 255);
         dataTwo.setTextSize(Global.SCREEN_HEIGHT/5);
 
+        gameState = -2;
         // check bluetooth
         if (Global.BLUETOOTH_DATA != null && Global.BLUETOOTH_DATA.isConnected()) {
             multiplayer = true;
-            gameState = -2;
             Global.BLUETOOTH_DATA.write("state-2");
+        } else {
+            random = new Random();
+        }
+    }
 
-            // wait until opponent is here
-            while (Global.BLUETOOTH_DATA.isConnected()) {
-                if (Global.BLUETOOTH_DATA.scene == Global.CURRENT_SCENE) break;
-                try {
-                    Thread.sleep(200);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                }
-            }
-
+    private void loadStages() {
+        gameState = 0;
+        if (multiplayer) {
             // set characters
             if (Global.BLUETOOTH_DATA.isHost)
                 Global.CHARACTER_ONE_NAME = Global.BLUETOOTH_DATA.character;
@@ -115,8 +119,9 @@ public class StageScene implements Scene {
             else
                 Global.BLUETOOTH_DATA.stage = Global.CURRENT_STAGE;
 
+            Global.BLUETOOTH_DATA.write("state0");
+            Global.BLUETOOTH_DATA.desync = false;
         } else {
-            gameState = 0;
             random = new Random();
             Global.CHARACTER_TWO_NAME = Global.CHARACTER_MANAGER.GET_RANDOM_NAME(random);
         }
@@ -124,16 +129,16 @@ public class StageScene implements Scene {
         stage = Global.STAGE_MANAGER.GET_STAGE(Global.CURRENT_STAGE);
         characterOne = Global.CHARACTER_MANAGER.GET_CHARACTER(Global.CHARACTER_ONE_NAME, 1);
         characterTwo = Global.CHARACTER_MANAGER.GET_CHARACTER(Global.CHARACTER_TWO_NAME, 2);
-
-        // loading complete
-        if (multiplayer) {
-            gameState = 0;
-            Global.BLUETOOTH_DATA.write("state0");
-        }
     }
 
     @Override
     public void draw(Canvas canvas) {
+        if (multiplayer && (gameState == -2 || Global.BLUETOOTH_DATA.gameState == -2)) {
+            waitScreen.draw(canvas);
+            exitButton.draw(canvas);
+            return;
+        }
+
         stage.draw(canvas);
 
         dataOne.draw(canvas);
@@ -179,21 +184,16 @@ public class StageScene implements Scene {
             }
         }
 
-        if (multiplayer) {
-            if (gameState == -1 || Global.BLUETOOTH_DATA.gameState == -1) {
-                pauseScreen.draw(canvas);
-                exitButton.draw(canvas);
-            }
-            else if (gameState == -2 || Global.BLUETOOTH_DATA.gameState == -2) {
-                waitScreen.draw(canvas);
-                exitButton.draw(canvas);
-            }
-        } else {
-            if (gameState == -1) {
-                pauseScreen.draw(canvas);
-                exitButton.draw(canvas);
-            }
+        if (multiplayer && (gameState == -1 || Global.BLUETOOTH_DATA.gameState == -1)) {
+            pauseScreen.draw(canvas);
+            exitButton.draw(canvas);
+        } else if (gameState == -1) {
+            pauseScreen.draw(canvas);
+            exitButton.draw(canvas);
         }
+
+        if (multiplayer && Global.BLUETOOTH_DATA.desync)
+            desync.draw(canvas);
     }
 
     @Override
@@ -247,8 +247,16 @@ public class StageScene implements Scene {
                 return;
             }
 
-            // check if opponent is loading
-            if (Global.BLUETOOTH_DATA.gameState == -2) {
+            if (Global.BLUETOOTH_DATA.gameState <= -3) {
+                exitGame();
+                return;
+            }
+
+            if (gameState == -2 && Global.BLUETOOTH_DATA.scene == Global.CURRENT_SCENE)
+                loadStages();
+
+            if (gameState == -2 || Global.BLUETOOTH_DATA.scene != Global.CURRENT_SCENE
+                    || Global.BLUETOOTH_DATA.gameState == -2) {
                 waitUpdate();
                 return;
             }
@@ -257,7 +265,12 @@ public class StageScene implements Scene {
                 pauseUpdate();
                 return;
             }
+
+        } else {
+            if (gameState == -2)
+                loadStages();
         }
+
         if (gameState == -1) {
             pauseUpdate();
             return;

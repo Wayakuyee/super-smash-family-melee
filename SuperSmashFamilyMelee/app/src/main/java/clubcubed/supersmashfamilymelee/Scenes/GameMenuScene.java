@@ -204,7 +204,10 @@ public class GameMenuScene implements Scene {
             bluetoothClient.cancel();
 
         if (Global.BLUETOOTH_DATA != null) {
-            Global.BLUETOOTH_DATA.cancel();
+            if (Global.BLUETOOTH_DATA.isConnected()) {
+                Global.BLUETOOTH_DATA.write("cancel");
+                Global.BLUETOOTH_DATA.cancel();
+            }
             Global.BLUETOOTH_DATA = null;
         }
 
@@ -248,9 +251,10 @@ public class GameMenuScene implements Scene {
                 // first bluetooth message
                 Global.BLUETOOTH_DATA.write("scene" + Global.CURRENT_SCENE.name());
             }
+            Global.BLUETOOTH_DATA.write("state-2");
             chooseHostConnect = false;
-            if (Global.BLUETOOTH_DATA.isHost) bluetooth.setText("Connected (P1)");
-            else bluetooth.setText("Connected (P2)");
+            if (Global.BLUETOOTH_DATA.isHost) bluetooth.setText("Connected (P2)");
+            else bluetooth.setText("Connected (P1)");
             opponentPlayer = 3;
         }
     }

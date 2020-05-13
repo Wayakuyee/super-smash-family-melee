@@ -4,10 +4,8 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
-import android.util.Log;
 import android.view.MotionEvent;
 
-import java.text.DecimalFormat;
 import java.util.Locale;
 import java.util.Stack;
 
@@ -19,6 +17,7 @@ public class Controller {
 
     private Paint stickPaint;
     private Paint stickDownPaint;
+    private Paint stickAreaPaint;
     private Paint jumpPaint;
     private Paint jumpDownPaint;
     private Paint attackPaint;
@@ -31,6 +30,8 @@ public class Controller {
 
     private float buttonSize;
 
+    // x; y; jump button; attack button
+    private int[] inputID;
     private Float[] inputs;
     private Stack<Float[]> inputsBuffer;
 
@@ -42,10 +43,11 @@ public class Controller {
         attack = new RectF(Global.SCREEN_WIDTH - buttonSize, Global.SCREEN_HEIGHT - buttonSize, Global.SCREEN_WIDTH,Global.SCREEN_HEIGHT);
 
         buttonSize /= 4f;
-        moveStick(stickArea.centerX(), stickArea.centerY());
+        moveStick(0f, 0f);
 
         stickPaint = new Paint();
         stickDownPaint = new Paint();
+        stickAreaPaint = new Paint();
         jumpPaint = new Paint();
         jumpDownPaint = new Paint();
         attackPaint = new Paint();
@@ -53,6 +55,7 @@ public class Controller {
 
         stickPaint.setColor(Color.argb(200, 85, 85, 85));
         stickDownPaint.setColor(Color.argb(50, 85, 85, 85));
+        stickAreaPaint.setColor(Color.argb(10, 85, 85, 85));
         jumpPaint.setColor(Color.argb(50, 0, 0, 255));
         jumpDownPaint.setColor(Color.argb(11, 0, 0, 255));
         attackPaint.setColor(Color.argb(50, 255, 0, 0));
@@ -63,77 +66,96 @@ public class Controller {
         yDif = stickArea.top - stickArea.bottom;
         ySum = stickArea.top + stickArea.bottom;
 
+        inputID = new int[]{-1, -1, -1};
+        inputs = new Float[]{0f, 0f, 0f, 0f};
         inputsBuffer = new Stack<>();
         for (; buffer>0; buffer--)
             inputsBuffer.push(new Float[]{0f, 0f, 0f, 0f});
     }
 
     /**
-     * moves stick center to x,y
-     * @param x center x
-     * @param y center y
+     * moves stick to (x, y) in respect to stickArea
+     * @param x horizontal center of stick in respect to stickArea
+     * @param y vertical center of stick in respect to stickArea
      */
     private void moveStick(float x, float y) {
-        stick.left = x-buttonSize;
-        stick.top = y-buttonSize;
-        stick.right = x+buttonSize;
-        stick.bottom = y+buttonSize;
+        x *= stickArea.width()/2;
+        y *= stickArea.height()/2;
+        stick.left = (stickArea.centerX()-buttonSize) + x;
+        stick.top = (stickArea.centerY()-buttonSize) - y;
+        stick.right = (stickArea.centerX()+buttonSize) + x;
+        stick.bottom = (stickArea.centerY()+buttonSize) - y;
     }
 
     public void receiveInput(MotionEvent motionEvent) {
-        // x; y; jump button; attack button
-        inputs = new Float[]{0f, 0f, 0f, 0f};
+        int i = motionEvent.getActionIndex();
+        int id = motionEvent.getPointerId(i);
 
-        for (int i=0; i<motionEvent.getPointerCount(); i++) {
-            if (motionEvent.getActionIndex()!=i || (motionEvent.getActionMasked()!=MotionEvent.ACTION_UP && motionEvent.getActionMasked()!=MotionEvent.ACTION_POINTER_UP)) {
-                if (stickArea.contains(motionEvent.getX(i), motionEvent.getY(i))) {
-                    // move
-                    inputs[0] = Float.valueOf(String.format(Locale.CANADA, "%.6f", (2 * motionEvent.getX(i) - xSum) / (xDif)));
-                    inputs[1] = Float.valueOf(String.format(Locale.CANADA, "%.6f", (2 * motionEvent.getY(i) - ySum) / (yDif)));
-                    moveStick(motionEvent.getX(i), motionEvent.getY(i));
-                } else if (jump.contains(motionEvent.getX(i), motionEvent.getY(i))) {
-                    // jump
-                    inputs[2] = 1f;
-                } else if (attack.contains(motionEvent.getX(i), motionEvent.getY(i))) {
-                    // attack
-                    inputs[3] = 1f;
-                }
+        boolean actionUp = (motionEvent.getActionMasked() == MotionEvent.ACTION_UP
+                || motionEvent.getActionMasked() == MotionEvent.ACTION_POINTER_UP);
+
+        if (inputID[0] == id
+                || (inputID[0] == -1 && !actionUp && stickArea.contains(motionEvent.getX(i), motionEvent.getY(i)))) {
+            // check control stick input
+            if (inputID[0] == -1 || (!actionUp && stickArea.contains(motionEvent.getX(i), motionEvent.getY(i)))) {
+                // set new
+                inputs[0] = Float.valueOf(String.format(Locale.CANADA, "%.6f", (2 * motionEvent.getX(i) - xSum) / (xDif)));
+                inputs[1] = Float.valueOf(String.format(Locale.CANADA, "%.6f", (2 * motionEvent.getY(i) - ySum) / (yDif)));
+                inputID[0] = id;
+            } else {
+                // reset
+                inputs[0] = 0f;
+                inputs[1] = 0f;
+                inputID[0] = -1;
+            }
+        } else if (inputID[1] == id
+                || (inputID[1] == -1 && !actionUp && jump.contains(motionEvent.getX(i), motionEvent.getY(i)))) {
+            // check jump input
+            if (inputID[1] == -1 || (!actionUp && jump.contains(motionEvent.getX(i), motionEvent.getY(i)))) {
+                // set new
+                inputs[2] = 1f;
+                inputID[1] = id;
+            } else {
+                // reset
+                inputs[2] = 0f;
+                inputID[1] = -1;
+            }
+        } else if (inputID[2] == id
+                || (inputID[2] == -1 && !actionUp && attack.contains(motionEvent.getX(i), motionEvent.getY(i)))) {
+            // check attack input
+            if (inputID[2] == -1 || (!actionUp && attack.contains(motionEvent.getX(i), motionEvent.getY(i)))) {
+                // set new
+                inputs[3] = 1f;
+                inputID[2] = id;
+            } else {
+                // reset
+                inputs[3] = 0f;
+                inputID[2] = -1;
             }
         }
     }
 
     public Float[] getInputs() {
+        if (inputsBuffer.isEmpty())
+            return new Float[]{0f, 0f, 0f, 0f};
         return inputsBuffer.pop();
     }
 
     public void draw(Canvas canvas) {
-        // TODO: test if this is laggy
-        // Float[] current = inputsBuffer.peek();
-        Float[] current = inputs;
+        canvas.drawRect(stickArea, stickAreaPaint);
 
-        if (current[0]==0f && current[1]==0f)
-            moveStick(stickArea.centerX(), stickArea.centerY());
+        if (inputs[0]==0f && inputs[1]==0f) canvas.drawOval(stick, stickPaint);
+        else canvas.drawOval(stick, stickDownPaint);
 
-        if (current[2] > 0f) {
-            canvas.drawRect(jump, jumpDownPaint);
-        } else {
-            canvas.drawRect(jump, jumpPaint);
-        }
+        if (inputs[2] > 0f) canvas.drawRect(jump, jumpDownPaint);
+        else canvas.drawRect(jump, jumpPaint);
 
-        if (current[3] > 0f) {
-            canvas.drawRect(attack, attackDownPaint);
-        } else {
-            canvas.drawRect(attack, attackPaint);
-        }
-
-        if (current[0]==0f && current[1]==0f) {
-            canvas.drawOval(stick, stickPaint);
-        } else {
-            canvas.drawOval(stick, stickDownPaint);
-        }
+        if (inputs[3] > 0f) canvas.drawRect(attack, attackDownPaint);
+        else canvas.drawRect(attack, attackPaint);
     }
 
     public void update() {
         inputsBuffer.push(inputs);
+        moveStick(inputs[0], inputs[1]);
     }
 }
