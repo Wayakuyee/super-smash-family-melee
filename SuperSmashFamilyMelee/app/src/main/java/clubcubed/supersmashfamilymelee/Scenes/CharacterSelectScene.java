@@ -100,7 +100,8 @@ public class CharacterSelectScene implements Scene {
     @Override
     public void update() {
         if (Global.BLUETOOTH_DATA != null && Global.BLUETOOTH_DATA.isConnected())
-            waiting = (Global.BLUETOOTH_DATA.scene == Global.SCENE_NAME.CHARACTER_SELECT_SCENE);
+            waiting = (Global.BLUETOOTH_DATA.scene != Global.SCENE_NAME.CHARACTER_SELECT_SCENE
+                    && Global.BLUETOOTH_DATA.scene != Global.SCENE_NAME.STAGE_SELECT_SCENE);
 
         if (waiting)
             wait.dankRectUpdate();

@@ -20,7 +20,7 @@ public class StageSelectScene implements Scene {
         if (Global.BLUETOOTH_DATA != null && Global.BLUETOOTH_DATA.isConnected()) {
             // go back if opponent is too far behind
             if (Global.BLUETOOTH_DATA.scene != Global.SCENE_NAME.CHARACTER_SELECT_SCENE
-                    || Global.BLUETOOTH_DATA.scene != Global.CURRENT_SCENE) {
+                    && Global.BLUETOOTH_DATA.scene != Global.CURRENT_SCENE) {
                 receiveBack();
                 return;
             }
@@ -64,7 +64,8 @@ public class StageSelectScene implements Scene {
         for (DankButton s : stages)
             s.draw(canvas);
 
-        if (waiting)
+        // wait might be null because return in constructor
+        if (waiting && wait != null)
             wait.draw(canvas);
     }
 
@@ -74,7 +75,7 @@ public class StageSelectScene implements Scene {
             for (int i=0; i<stages.size(); i++) {
                 if (stages.get(i).collide(motionEvent.getX(), motionEvent.getY())) {
                     Global.CURRENT_STAGE = stageNames.get(i);
-                    if (Global.BLUETOOTH_DATA != null)
+                    if (Global.BLUETOOTH_DATA != null && Global.BLUETOOTH_DATA.isConnected())
                         Global.BLUETOOTH_DATA.write("stage" + Global.CURRENT_STAGE.name());
                     terminate(Global.SCENE_NAME.STAGE_SCENE);
                 }
@@ -101,15 +102,18 @@ public class StageSelectScene implements Scene {
                 receiveBack();
                 return;
             }
-            waiting = (Global.BLUETOOTH_DATA.scene != Global.SCENE_NAME.STAGE_SELECT_SCENE);
+            waiting = (Global.BLUETOOTH_DATA.scene != Global.SCENE_NAME.STAGE_SELECT_SCENE
+                    && Global.BLUETOOTH_DATA.scene != Global.SCENE_NAME.STAGE_SCENE);
 
             if (Global.BLUETOOTH_DATA.stage != Global.STAGE_NAME.NULL) {
                 Global.CURRENT_STAGE = Global.BLUETOOTH_DATA.stage;
                 Global.BLUETOOTH_DATA.write("stage" + Global.CURRENT_STAGE.name());
-
+                terminate(Global.SCENE_NAME.STAGE_SCENE);
+                return;
             }
 
-            if (waiting)
+            // wait might be null because return in constructor
+            if (waiting && wait != null)
                 wait.dankRectUpdate();
         }
 
