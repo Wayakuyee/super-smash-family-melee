@@ -6,8 +6,8 @@ import android.graphics.Paint;
 import android.graphics.RectF;
 import android.view.MotionEvent;
 
+import java.util.LinkedList;
 import java.util.Locale;
-import java.util.Stack;
 
 public class Controller {
     private RectF stickArea;
@@ -33,9 +33,9 @@ public class Controller {
     // x; y; jump button; attack button
     private int[] inputID;
     private Float[] inputs;
-    private Stack<Float[]> inputsBuffer;
+    private LinkedList<Float[]> inputsBuffer;
 
-    public Controller(int buffer) {
+    public Controller() {
         buttonSize = (Global.SCREEN_WIDTH < Global.SCREEN_HEIGHT) ? (Global.SCREEN_WIDTH/2) : (Global.SCREEN_HEIGHT/2);
         stick = new RectF();
         stickArea = new RectF(0, buttonSize, buttonSize, buttonSize*2);
@@ -68,9 +68,11 @@ public class Controller {
 
         inputID = new int[]{-1, -1, -1};
         inputs = new Float[]{0f, 0f, 0f, 0f};
-        inputsBuffer = new Stack<>();
-        for (; buffer>0; buffer--)
-            inputsBuffer.push(new Float[]{0f, 0f, 0f, 0f});
+        inputsBuffer = new LinkedList<>();
+    }
+
+    public void addBuffer() {
+        inputsBuffer.add(new Float[]{0f, 0f, 0f, 0f});
     }
 
     /**
@@ -138,7 +140,7 @@ public class Controller {
     public Float[] getInputs() {
         if (inputsBuffer.isEmpty())
             return new Float[]{0f, 0f, 0f, 0f};
-        return inputsBuffer.pop();
+        return inputsBuffer.remove();
     }
 
     public void draw(Canvas canvas) {
@@ -155,7 +157,7 @@ public class Controller {
     }
 
     public void update() {
-        inputsBuffer.push(inputs);
+        inputsBuffer.add(inputs);
         moveStick(inputs[0], inputs[1]);
     }
 }

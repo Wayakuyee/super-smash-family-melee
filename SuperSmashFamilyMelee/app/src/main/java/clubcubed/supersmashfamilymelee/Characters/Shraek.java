@@ -80,8 +80,6 @@ public class Shraek extends Character {
 
         character.top = 0;
         character.bottom = height;
-        move(0, 0);
-
         if (getPlayer() == 1) {
             // top left, 1/4 screen
             character.left = (Global.GAME_WIDTH/4*Global.GAME_RATIO +Global.GAME_DIFFERENCE) - (width/2);
@@ -91,6 +89,7 @@ public class Shraek extends Character {
             character.left = (3*Global.GAME_WIDTH/4*Global.GAME_RATIO +Global.GAME_DIFFERENCE) - (width/2);
             character.right = (3*Global.GAME_WIDTH/4*Global.GAME_RATIO +Global.GAME_DIFFERENCE) + (width/2);
         }
+        move(0, 0);
 
         state = MovementState.Fall;
 
@@ -104,7 +103,8 @@ public class Shraek extends Character {
 
     private void die() {
         stock -= 1;
-        spawn();
+        if (stock > 0)
+            spawn();
     }
 
     private void jump() {

@@ -5,6 +5,7 @@ import android.util.Log;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.LinkedList;
 import java.util.Stack;
 
 import clubcubed.supersmashfamilymelee.Global;
@@ -25,7 +26,7 @@ public class BluetoothData extends Thread {
     public short gameState;
     public boolean desync = false;
 
-    private Stack<String> inputsBuffer;
+    private LinkedList<String> inputsBuffer;
     private InputStream inputStream;
     private OutputStream outputStream;
 
@@ -43,7 +44,7 @@ public class BluetoothData extends Thread {
             e.printStackTrace();
             outputStream = null;
         }
-        inputsBuffer = new Stack<>();
+        inputsBuffer = new LinkedList<>();
     }
 
     @Override
@@ -58,7 +59,7 @@ public class BluetoothData extends Thread {
                 String message = (len >= 0) ? new String(buffer).substring(0, len) : ("");
                 for (String s : message.split(",")) {
                     if (s.startsWith("input")) {
-                        inputsBuffer.push(s.substring(5));
+                        inputsBuffer.add(s.substring(5));
                     } else if (s.startsWith("state")) {
                         this.gameState = Short.parseShort(s.substring(5));
                     } else if (s.startsWith("chara")) {
@@ -116,6 +117,6 @@ public class BluetoothData extends Thread {
             desync = true;
             return "0;0;0;0";
         }
-        return inputsBuffer.pop();
+        return inputsBuffer.remove();
     }
 }

@@ -71,7 +71,7 @@ public class StageScene implements Scene {
         desync.setTextARGB(255, 255, 255, 255);
         desync.setTextSize(Global.GAME_HEIGHT/14);
 
-        controller = new Controller(10);
+        controller = new Controller();
         endgame = 0;
 
         dataOne = new DankButton(
@@ -106,6 +106,7 @@ public class StageScene implements Scene {
 
     private void loadStages() {
         gameState = 0;
+        int buffer = 8;
         if (multiplayer) {
             // set characters
             if (Global.BLUETOOTH_DATA.isHost)
@@ -121,9 +122,16 @@ public class StageScene implements Scene {
 
             Global.BLUETOOTH_DATA.write("state0");
             Global.BLUETOOTH_DATA.desync = false;
+
+            for (; buffer>0; buffer--) {
+                controller.addBuffer();
+                writeInput(new Float[]{0f, 0f, 0f, 0f});
+            }
         } else {
             random = new Random();
             Global.CHARACTER_TWO_NAME = Global.CHARACTER_MANAGER.GET_RANDOM_NAME(random);
+            for (; buffer>0; buffer--)
+                controller.addBuffer();
         }
 
         stage = Global.STAGE_MANAGER.GET_STAGE(Global.CURRENT_STAGE);
