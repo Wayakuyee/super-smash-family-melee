@@ -1,2 +1,2 @@
-# super-smash-family-melee
-A mobile fighting game for android (currently unplayable)
+# Super Smash Family Melee
+A mobile fighting game for Android, available for devices with Android version 5.0 and above.
